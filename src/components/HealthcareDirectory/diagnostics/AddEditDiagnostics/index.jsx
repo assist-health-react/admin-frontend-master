@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useSnackbar } from "../../../../contexts/SnackbarContext";
-import { doctorsService } from "../../../../services/doctorsService"; 
+import { healthcareService } from "../../../../services/healthcareService"; 
 import DiagnosticsServicesSection from "./DiagnosticsServicesSection";
 import IntroductionSection from "./IntroductionSection";
 import DiagnosticsAddressSection from "./DiagnosticsAddressSection";
@@ -47,23 +47,37 @@ const AddEditDiagnostics = ({ onClose, initialData, isEditing, onSuccess }) => {
   }, []);
 
   // handle simple inputs
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+
+  //   if (name === "phone") {
+  //     const phoneValue = value.replace(/\D/g, "").slice(0, 10);
+  //     setFormData(prev => ({ ...prev, phone: phoneValue }));
+  //     return;
+  //   }
+
+  //   if (name === "pincode") {
+  //     const pin = value.replace(/\D/g, "").slice(0, 6);
+  //     setFormData(prev => ({ ...prev, pincode: pin }));
+  //     return;
+  //   }
+
+  //   setFormData(prev => ({ ...prev, [name]: value }));
+  // };
+
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === "phone") {
-      const phoneValue = value.replace(/\D/g, "").slice(0, 10);
-      setFormData(prev => ({ ...prev, phone: phoneValue }));
-      return;
+    
+    if (name === 'phone') {
+      // Only allow digits and limit to 10 characters
+      const phoneValue = value.replace(/\D/g, '').slice(0, 10);
+      setFormData(prev => ({ ...prev, [name]: phoneValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
-
-    if (name === "pincode") {
-      const pin = value.replace(/\D/g, "").slice(0, 6);
-      setFormData(prev => ({ ...prev, pincode: pin }));
-      return;
-    }
-
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  }
+  
 
   // Submit
   const handleSubmit = async (e) => {
@@ -91,7 +105,7 @@ const AddEditDiagnostics = ({ onClose, initialData, isEditing, onSuccess }) => {
       const data = {
         name: formData.name,
         email: formData.email,
-        phone: formData.phone.startsWith("+91") ? formData.phone : `+91${formData.phone}`,
+        phone: formData.phone,//.startsWith("+91") ? formData.phone : `+91${formData.phone}`,
         website: formData.website,
         address: {
           street: formData.addressStreet,
@@ -110,9 +124,9 @@ const AddEditDiagnostics = ({ onClose, initialData, isEditing, onSuccess }) => {
       let response;
 
       if (isEditing) {
-        response = await doctorsService.updateDoctor(initialData._id, data);
+        response = await healthcareService.updateDiagnostics(initialData._id, data);
       } else {
-        response = await doctorsService.createDoctor(data);
+        response = await healthcareService.createDiagnostics(data);
       }
 
       if (response?.status === "success") {
@@ -133,6 +147,8 @@ const AddEditDiagnostics = ({ onClose, initialData, isEditing, onSuccess }) => {
       setIsSubmitting(false);
     }
   };
+
+  
 
   return (
     <div
@@ -279,6 +295,7 @@ const AddEditDiagnostics = ({ onClose, initialData, isEditing, onSuccess }) => {
           {/* Introduction (optional) */}
           <IntroductionSection
             formData={formData}
+            handleInputChange={handleInputChange}
             setFormData={setFormData}
           />
 

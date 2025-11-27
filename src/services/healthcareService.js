@@ -119,6 +119,10 @@ const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api/v1/healthcare`,
   headers: { "Content-Type": "application/json" }
 });
+const api2 = axios.create({
+  baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
+  headers: { "Content-Type": "application/json" }
+});
 
 export const healthcareService = {
   getDepartments: () => api.get("/departments").then(res => res.data),
@@ -130,4 +134,31 @@ export const healthcareService = {
   deleteHospital: (id) => api.delete(`/hospitals/${id}`).then(res => res.data),
   getHospitals: () => api.get("/hospitals").then(res => res.data),
   getHospitalById: (id) => api.get(`/hospitals/${id}`).then(res => res.data),
+
+  //25.11.25
+  // Diagnostics Metadata
+getDiagnosticServices: () => api2.get("/diagnostics-meta/services").then(res => res.data),
+getDiagnosticCities: () => api2.get("/diagnostics-meta/cities").then(res => res.data),
+
+// Diagnostics CRUD
+getDiagnostics: () => api2.get("/diagnostics").then(res => res.data),
+getDiagnosticsById: (id) => api2.get(`/diagnostics/${id}`).then(res => res.data),
+createDiagnostics: (data) => api2.post("/diagnostics", data).then(res => res.data),
+updateDiagnostics: (id, data) => api2.put(`/diagnostics/${id}`, data).then(res => res.data),
+deleteDiagnostics: (id) => api2.delete(`/diagnostics/${id}`).then(res => res.data),
+
+// Physiotherapy CRUD
+getPhysiotherapy: () => api2.get("/physiotherapy").then(res => res.data),
+getPhysiotherapyById: (id) => api2.get(`/physiotherapy/${id}`).then(res => res.data),
+createPhysiotherapy: (data) => api2.post("/physiotherapy", data).then(res => res.data),
+updatePhysiotherapy: (id, data) => api2.put(`/physiotherapy/${id}`, data).then(res => res.data),
+deletePhysiotherapy: (id) => api2.delete(`/physiotherapy/${id}`).then(res => res.data),
+
+ // Homecare CRUD
+  getHomecare: () => api2.get("/homecare").then(res => res.data),
+  getHomecareById: (id) => api2.get(`/homecare/${id}`).then(res => res.data),
+  createHomecare: (data) => api2.post("/homecare", data).then(res => res.data),
+  updateHomecare: (id, data) => api2.put(`/homecare/${id}`, data).then(res => res.data),
+  deleteHomecare: (id) => api2.delete(`/homecare/${id}`).then(res => res.data),
+
 };

@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { PHYSIOTHERAPY_SERVICES } from "./PhysiotherapyData";
 
-export default function DiagnosticsServicesSection({ formData, setFormData }) {
+const HomecareServicesSection = ({ formData, setFormData }) => {
   const toggleService = (service) => {
     setFormData((prev) => ({
       ...prev,
@@ -14,7 +14,7 @@ export default function DiagnosticsServicesSection({ formData, setFormData }) {
   return (
     <div className="bg-white border border-gray-200 p-5 rounded-xl shadow-sm">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
-      Services  *
+        Services *
       </h3>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -38,4 +38,6 @@ export default function DiagnosticsServicesSection({ formData, setFormData }) {
       </div>
     </div>
   );
-}
+};
+
+export default HomecareServicesSection;

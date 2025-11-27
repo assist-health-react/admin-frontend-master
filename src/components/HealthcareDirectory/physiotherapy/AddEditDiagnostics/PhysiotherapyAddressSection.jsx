@@ -2,10 +2,9 @@ import React from "react";
 import { DIAGNOSTIC_CITIES } from "./PhysiotherapyData";
 import { FaPlus, FaTrash } from "react-icons/fa";
 
-export default function DiagnosticsAddressSection({ formData, setFormData }) {
-
+export default function PhysiotherapyAddressSection({ formData, setFormData }) {
   const addAddress = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       addresses: [
         ...prev.addresses,
@@ -14,21 +13,21 @@ export default function DiagnosticsAddressSection({ formData, setFormData }) {
           addressStreet: "",
           area: "",
           city: "",
-          pincode: ""
-        }
-      ]
+          pincode: "",
+        },
+      ],
     }));
   };
 
   const removeAddress = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      addresses: prev.addresses.filter((_, i) => i !== index)
+      addresses: prev.addresses.filter((_, i) => i !== index),
     }));
   };
 
   const updateAddress = (index, field, value) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const updated = [...prev.addresses];
       updated[index][field] = value;
       return { ...prev, addresses: updated };
@@ -57,7 +56,9 @@ export default function DiagnosticsAddressSection({ formData, setFormData }) {
           className="border rounded-xl p-4 mb-4 bg-gray-50 shadow-sm"
         >
           <div className="flex justify-between items-center">
-            <h4 className="font-semibold text-gray-700">Location #{index + 1}</h4>
+            <h4 className="font-semibold text-gray-700">
+              Location #{index + 1}
+            </h4>
 
             {formData.addresses.length > 1 && (
               <button
@@ -71,36 +72,49 @@ export default function DiagnosticsAddressSection({ formData, setFormData }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-
             <div>
-              <label className="block text-sm font-medium mb-1">Location Name *</label>
+              <label className="block text-sm font-medium mb-1">
+                Location Name *
+              </label>
               <input
                 value={addr.locationName}
-                onChange={(e) => updateAddress(index, "locationName", e.target.value)}
+                onChange={(e) =>
+                  updateAddress(index, "locationName", e.target.value)
+                }
                 className="w-full border rounded-lg px-3 py-2"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Area *</label>
+              <label className="block text-sm font-medium mb-1">
+                Area *
+              </label>
               <input
                 value={addr.area}
-                onChange={(e) => updateAddress(index, "area", e.target.value)}
+                onChange={(e) =>
+                  updateAddress(index, "area", e.target.value)
+                }
                 className="w-full border rounded-lg px-3 py-2"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Address *</label>
+              <label className="block text-sm font-medium mb-1">
+                Address *
+              </label>
               <textarea
                 value={addr.addressStreet}
-                onChange={(e) => updateAddress(index, "addressStreet", e.target.value)}
+                onChange={(e) =>
+                  updateAddress(index, "addressStreet", e.target.value)
+                }
                 className="w-full border rounded-lg px-3 py-2 h-20"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">City *</label>
+              <label className="block text-sm font-medium mb-1">
+                City *
+              </label>
               <select
                 value={addr.city}
                 onChange={(e) => updateAddress(index, "city", e.target.value)}
@@ -108,13 +122,17 @@ export default function DiagnosticsAddressSection({ formData, setFormData }) {
               >
                 <option value="">-- Select City --</option>
                 {DIAGNOSTIC_CITIES.map((city) => (
-                  <option key={city} value={city}>{city}</option>
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Pincode *</label>
+              <label className="block text-sm font-medium mb-1">
+                Pincode *
+              </label>
               <input
                 maxLength={6}
                 value={addr.pincode}
@@ -125,7 +143,6 @@ export default function DiagnosticsAddressSection({ formData, setFormData }) {
                 className="w-full border rounded-lg px-3 py-2"
               />
             </div>
-
           </div>
         </div>
       ))}
