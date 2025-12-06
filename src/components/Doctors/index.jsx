@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { doctorsService } from '../../services/doctorsService'
+import { doctorsService } from '../../services/AHdoctorsService'
 import DoctorsList from './DoctorsList'
 import DoctorDetail from './DoctorDetail'
 import AddEditDoctor from './AddEditDoctor'

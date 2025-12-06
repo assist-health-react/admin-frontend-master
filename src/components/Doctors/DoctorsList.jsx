@@ -244,26 +244,27 @@ const DoctorsList = ({
               >
                 Previous
               </button>
-              <button
+             <button
                 onClick={() => setCurrentPage(prev => prev + 1)}
-                disabled={currentPage >= pagination.pages}
+                disabled={currentPage >= (pagination?.pages || 1)}
                 className={`relative ml-3 inline-flex items-center rounded-md px-4 py-2 text-sm font-medium ${
-                  currentPage >= pagination.pages
+                  currentPage >= (pagination?.pages || 1)
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-white text-gray-700 hover:bg-gray-50'
                 } border border-gray-300`}
               >
                 Next
               </button>
+
             </div>
-            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            {/* <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-gray-700">
-                  Showing <span className="font-medium">{((currentPage - 1) * pagination.limit) + 1}</span> to{' '}
+                  Showing <span className="font-medium">{((currentPage - 1) * pagination?.limit) + 1}</span> to{' '}
                   <span className="font-medium">
-                    {Math.min(currentPage * pagination.limit, pagination.total)}
+                    {Math.min(currentPage * pagination?.limit, pagination?.total)}
                   </span>{' '}
-                  of <span className="font-medium">{pagination.total}</span> doctors
+                  of <span className="font-medium">{pagination?.total}</span> doctors
                 </p>
               </div>
               <div>
@@ -280,9 +281,9 @@ const DoctorsList = ({
                       <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
                     </svg>
                   </button>
-                  {[...Array(Math.min(5, pagination.pages))].map((_, idx) => {
+                  {[...Array(Math.min(5, pagination?.pages))].map((_, idx) => {
                     const pageNumber = currentPage + idx - Math.min(2, currentPage - 1);
-                    if (pageNumber > 0 && pageNumber <= pagination.pages) {
+                    if (pageNumber > 0 && pageNumber <= pagination?.pages) {
                       return (
                         <button
                           key={pageNumber}
@@ -301,9 +302,9 @@ const DoctorsList = ({
                   })}
                   <button
                     onClick={() => setCurrentPage(prev => prev + 1)}
-                    disabled={currentPage >= pagination.pages}
+                    disabled={currentPage >= pagination?.pages}
                     className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 ${
-                      currentPage >= pagination.pages ? 'cursor-not-allowed' : 'hover:text-gray-700'
+                      currentPage >= pagination?.pages ? 'cursor-not-allowed' : 'hover:text-gray-700'
                     }`}
                   >
                     <span className="sr-only">Next</span>
@@ -313,7 +314,103 @@ const DoctorsList = ({
                   </button>
                 </nav>
               </div>
-            </div>
+            </div> */}
+            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+  <div>
+    {/* SAFE PAGINATION VALUES */}
+    <p className="text-sm text-gray-700">
+      Showing{" "}
+      <span className="font-medium">
+        {pagination
+          ? ((currentPage - 1) * (pagination.limit || 0)) + 1
+          : 0}
+      </span>{" "}
+      to{" "}
+      <span className="font-medium">
+        {pagination
+          ? Math.min(currentPage * (pagination.limit || 0), pagination.total || 0)
+          : 0}
+      </span>{" "}
+      of <span className="font-medium">{pagination?.total || 0}</span> doctors
+    </p>
+  </div>
+
+  <div>
+    <nav
+      className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+      aria-label="Pagination"
+    >
+      {/* PREVIOUS BUTTON */}
+      <button
+        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+        disabled={currentPage === 1}
+        className={`relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${
+          currentPage === 1
+            ? "cursor-not-allowed"
+            : "hover:bg-gray-50 hover:text-gray-700"
+        }`}
+      >
+        <span className="sr-only">Previous</span>
+        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path
+            fillRule="evenodd"
+            d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </button>
+
+      {/* PAGE NUMBERS */}
+      {(() => {
+        const totalPages = pagination?.pages || 0;
+        const visiblePages = Math.min(5, totalPages);
+
+        return [...Array(visiblePages)].map((_, idx) => {
+          const pageNumber =
+            currentPage + idx - Math.min(2, currentPage - 1);
+
+          if (pageNumber > 0 && pageNumber <= totalPages) {
+            return (
+              <button
+                key={pageNumber}
+                onClick={() => setCurrentPage(pageNumber)}
+                className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+                  currentPage === pageNumber
+                    ? "z-10 bg-blue-600 text-white"
+                    : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                {pageNumber}
+              </button>
+            );
+          }
+          return null;
+        });
+      })()}
+
+      {/* NEXT BUTTON */}
+      <button
+        onClick={() => setCurrentPage(prev => prev + 1)}
+        disabled={currentPage >= (pagination?.pages || 0)}
+        className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${
+          currentPage >= (pagination?.pages || 0)
+            ? "cursor-not-allowed"
+            : "hover:bg-gray-50 hover:text-gray-700"
+        }`}
+      >
+        <span className="sr-only">Next</span>
+        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path
+            fillRule="evenodd"
+            d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </button>
+    </nav>
+  </div>
+</div>
+
           </div>
         )}
       </div>
