@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaUserMd, FaSearch, FaSpinner, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
-import { doctorsService } from '../../../services/doctorsService';
+import { doctorsService } from '../../../services/AHdoctorsService';
 import { useSnackbar } from '../../../contexts/SnackbarContext';
 import { membersService } from '../../../services/membersService';
 
