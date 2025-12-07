@@ -46,6 +46,7 @@ export const medicalHistoryService = {
       }
 
       const response = await api.post(`/api/v1/medical-history/${data.memberId}`, data);
+      console.log("createMedicalHistory")
       
       if (response?.status === 'success' && response?.data) {
         return response;
@@ -65,7 +66,7 @@ export const medicalHistoryService = {
       }
 
       const response = await api.patch(`/api/v1/medical-history/${memberId}?id=${historyId}`, data);
-      
+        console.log("updateMedicalHistory")
       if (response?.status === 'success' && response?.data) {
         return response;
       }

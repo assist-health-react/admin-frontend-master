@@ -12,12 +12,12 @@ import { toast } from 'react-toastify';
 const AddMedicalHistory = ({ member, onClose, onSave, initialData, isEdit = false }) => {
   const [formData, setFormData] = useState({
     primaryCarePhysician: {
-      name: 'Dr. John Smith',
-      contactNumber: '+91 98765-43210'
+      name: '',
+      contactNumber: ''
     },
     medicalHistory: [{
       condition: '',
-      diagnosisDate: '',
+      diagnosisDate:new Date().toISOString().split('T')[0],
       treatment: '',
       status: 'active',
       notes: ''
@@ -85,9 +85,30 @@ const AddMedicalHistory = ({ member, onClose, onSave, initialData, isEdit = fals
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [uploads, setUploads] = useState([
-    { title: '', fileUrl: null, localFile: null, error: '', isUploading: false }
-  ]);
+    // 🔥 SAME UI BUT WORKS WITH EXISTING API STRUCTURE
+// 🔥 FINAL uploads state based on NEW UploadSection layout
+const [uploads, setUploads] = useState([
+  {
+    title: "",
+    localFile: null,
+    fileUrl: null,
+    error: "",
+    isUploading: false
+  }
+]);
+const handleTitleChange = (index, title) => {
+  setUploads(prev =>
+    prev.map((u, i) =>
+      i === index ? { ...u, title } : u
+    )
+  );
+};
+
+  const formatDateForInput = (dateString) => {
+  if (!dateString) return "";
+  return dateString.slice(0, 10);  // "2025-12-06"
+};
+
 
   // Initialize form data with existing data in edit mode
   useEffect(() => {
@@ -98,7 +119,7 @@ const AddMedicalHistory = ({ member, onClose, onSave, initialData, isEdit = fals
         medicalHistory: initialData.previousMedicalConditions?.length > 0 
           ? initialData.previousMedicalConditions.map(({ _id, ...rest }) => ({
               condition: rest.condition || '',
-              diagnosisDate: rest.diagnosedAt || '',
+              diagnosisDate: formatDateForInput(rest.diagnosedAt) || '',
               treatment: rest.treatmentReceived || '',
               status: rest.status || 'active',
               notes: rest.notes || ''
@@ -273,50 +294,121 @@ const AddMedicalHistory = ({ member, onClose, onSave, initialData, isEdit = fals
     ));
   };
 
-  const handleFileSelect = async (index, file) => {
-    if (!file) return;
+  // const handleFileSelect = async (index, file) => {
+  //   if (!file) return;
 
-    // Validate file size (10MB limit)
-    if (file.size > 10 * 1024 * 1024) {
-      setUploads(prev => prev.map((upload, i) => 
-        i === index ? { ...upload, error: 'File size should be less than 10MB' } : upload
-      ));
-      return;
-    }
+  //   // Validate file size (10MB limit)
+  //   if (file.size > 10 * 1024 * 1024) {
+  //     setUploads(prev => prev.map((upload, i) => 
+  //       i === index ? { ...upload, error: 'File size should be less than 10MB' } : upload
+  //     ));
+  //     return;
+  //   }
 
-    try {
-      // Show loading state in the UI
-      setUploads(prev => prev.map((upload, i) => 
-        i === index ? { ...upload, error: '', isUploading: true } : upload
-      ));
+  //   try {
+  //     // Show loading state in the UI
+  //     setUploads(prev => prev.map((upload, i) => 
+  //       i === index ? { ...upload, error: '', isUploading: true } : upload
+  //     ));
 
-      // Upload the file immediately
-      const response = await uploadMedia(file);
+  //     // Upload the file immediately
+  //     const response = await uploadMedia(file);
       
-      if (response?.success && response?.imageUrl) {
-        setUploads(prev => prev.map((upload, i) => 
-          i === index ? { 
-            ...upload, 
-            fileUrl: response.imageUrl,
-            localFile: { name: file.name, type: file.type },
-            error: '',
-            isUploading: false
-          } : upload
-        ));
-      } else {
-        throw new Error('Failed to upload file');
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      setUploads(prev => prev.map((upload, i) => 
-        i === index ? { 
-          ...upload, 
-          error: 'Failed to upload file. Please try again.',
-          isUploading: false
-        } : upload
-      ));
+  //     if (response?.success && response?.imageUrl) {
+  //       setUploads(prev => prev.map((upload, i) => 
+  //         i === index ? { 
+  //           ...upload, 
+  //           fileUrl: response.imageUrl,
+  //           localFile: { name: file.name, type: file.type },
+  //           error: '',
+  //           isUploading: false
+  //         } : upload
+  //       ));
+  //     } else {
+  //       throw new Error('Failed to upload file');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error uploading file:', error);
+  //     setUploads(prev => prev.map((upload, i) => 
+  //       i === index ? { 
+  //         ...upload, 
+  //         error: 'Failed to upload file. Please try again.',
+  //         isUploading: false
+  //       } : upload
+  //     ));
+  //   }
+  // };
+  // 🔥 Upload to Cloudinary using existing uploadMedia()
+const handleFileSelect = async (index, file) => {
+  if (!file) return;
+
+  if (file.size > 10 * 1024 * 1024) {
+    setUploads(prev =>
+      prev.map((u, i) =>
+        i === index ? { ...u, error: "File must be less than 10MB" } : u
+      )
+    );
+    return;
+  }
+
+  // Show Uploading Spinner
+  setUploads(prev =>
+    prev.map((u, i) =>
+      i === index ? { ...u, isUploading: true, error: "" } : u
+    )
+  );
+
+  try {
+    const uploadResult = await uploadMedia(file); // <-- your existing function
+
+    if (uploadResult?.success) {
+      const fileUrl = uploadResult.imageUrl;
+
+      setUploads(prev =>
+        prev.map((u, i) =>
+          i === index
+            ? {
+                ...u,
+                localFile: file,
+                fileUrl,
+                isUploading: false
+              }
+            : u
+        )
+      );
+    } else {
+      throw new Error("Upload failed");
     }
-  };
+  } catch (err) {
+    setUploads(prev =>
+      prev.map((u, i) =>
+        i === index
+          ? {
+              ...u,
+              error: "Upload failed",
+              isUploading: false
+            }
+          : u
+      )
+    );
+  }
+};
+const addUploadField = () => {
+  setUploads(prev => [
+    ...prev,
+    {
+      title: "",
+      localFile: null,
+      fileUrl: null,
+      error: "",
+      isUploading: false
+    }
+  ]);
+};
+
+const removeUploadField = (index) => {
+  setUploads(prev => prev.filter((_, i) => i !== index));
+};
 
   const handleAddUpload = () => {
     setUploads(prev => [...prev, { title: '', fileUrl: null, localFile: null, error: '', isUploading: false }]);
@@ -326,111 +418,175 @@ const AddMedicalHistory = ({ member, onClose, onSave, initialData, isEdit = fals
     setUploads(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
     
-    if (!member?._id && !member?.id) {
-      toast.error('Member ID is required');
-      return;
+  //   if (!member?._id && !member?.id) {
+  //     toast.error('Member ID is required');
+  //     return;
+  //   }
+
+  //   try {
+  //     setIsSubmitting(true);
+  //     console.log('Form submission started:', { isEdit, initialData });
+  //     console.log('Member data:', member);
+  //     console.log('Form data before transform:', formData);
+
+  //     // Transform the data to match API requirements
+  //     const transformedData = {
+  //       memberId: member._id || member.id,
+  //       primaryCarePhysician: {
+  //         name: formData.primaryCarePhysician.name,
+  //         contactNumber: formData.primaryCarePhysician.contactNumber
+  //       },
+  //       // medicalReports: uploads
+  //       //   .filter(upload => upload.title && upload.fileUrl)
+  //       //   .map(upload => ({
+  //       //     name: upload.title,
+  //       //     files: [upload.fileUrl]
+  //       //   })),
+  //       // 🔥 MEDICAL REPORTS — SAME UI, SAME SERVICE, IMPROVED STRUCTURE
+  //         medicalReports: uploads
+  //           .filter(u => u.title && u.fileUrl)
+  //           .map(u => ({
+  //             name: u.title,
+  //             files: [u.fileUrl]   // 🔥 EXACT FIELD BACKEND EXPECTS
+  //           })),
+
+  //       treatingDoctors: formData.treatingDoctors.map(doctor => ({
+  //         name: doctor.name,
+  //         hospitalName: doctor.hospitalName,
+  //         speciality: doctor.speciality
+  //       })),
+  //       followUps: formData.followUps.map(followUp => ({
+  //         date: followUp.date ? new Date(followUp.date).toISOString() : null,
+  //         specialistDetails: followUp.specialistDetails,
+  //         remarks: followUp.remarks
+  //       })),
+  //       familyHistory: formData.familyHistory.map(history => ({
+  //         condition: history.condition,
+  //         relationship: history.relationship
+  //       })),
+  //       allergies: formData.allergies,
+  //       currentMedications: formData.currentMedications,
+  //       surgeries: formData.surgeries.map(surgery => ({
+  //         procedure: surgery.procedure,
+  //         date: surgery.date ? new Date(surgery.date).toISOString() : null,
+  //         surgeonName: surgery.surgeonName
+  //       })),
+  //       previousMedicalConditions: formData.previousConditions.map(condition => {
+  //         console.log('Processing condition:', condition);
+  //         return {
+  //           condition: condition.condition,
+  //           diagnosedAt: condition.diagnosedAt ? new Date(condition.diagnosedAt).toISOString() : null,
+  //           treatmentReceived: condition.treatmentReceived,
+  //           notes: condition.notes || '',
+  //           status: condition.status
+  //         };
+  //       }),
+  //       immunizations: formData.immunizationHistory.map(immunization => ({
+  //         vaccine: immunization.vaccination,
+  //         date: immunization.dateReceived ? new Date(immunization.dateReceived).toISOString() : null
+  //       })),
+  //       currentSymptoms: formData.currentSymptoms,
+  //       healthInsurance: [{
+  //         provider: formData.healthInsurance.provider,
+  //         policyNumber: formData.healthInsurance.policyNumber,
+  //         expiryDate: formData.healthInsurance.expiryDate ? new Date(formData.healthInsurance.expiryDate).toISOString() : null
+  //       }],
+  //       lifestyleHabits: formData.lifestyleHabits,
+  //       medicalTestResults: formData.medicalTestResults.map(test => ({
+  //         name: test.name,
+  //         date: test.date ? new Date(test.date).toISOString() : null,
+  //         results: test.results
+  //       })),
+  //     };
+
+  //     console.log('Transformed data:', transformedData);
+
+  //     // Use the appropriate service method based on mode
+  //     let response;
+  //     if (isEdit) {
+  //       console.log('Updating medical history with:', {
+  //         historyId: initialData._id,
+  //         memberId: member._id || member.id,
+  //         data: transformedData
+  //       });
+  //       response = await medicalHistoryService.updateMedicalHistory(initialData._id, member._id || member.id, transformedData);
+  //       console.log('Update response:', response);
+  //       toast.success('Medical history updated successfully');
+  //     } else {
+  //       console.log('Creating new medical history:', transformedData);
+  //       response = await medicalHistoryService.createMedicalHistory(transformedData);
+  //       console.log('Create response:', response);
+  //       toast.success('Medical history created successfully');
+  //     }
+
+  //     if (response) {
+  //       onSave(response);
+  //       onClose();
+  //     } else {
+  //       throw new Error(isEdit ? 'Failed to update medical history' : 'Failed to create medical history');
+  //     }
+  //   } catch (error) {
+  //     console.error(isEdit ? 'Error updating medical history:' : 'Error creating medical history:', error);
+  //     toast.error(error.message || (isEdit ? 'Failed to update medical history' : 'Failed to create medical history'));
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+const handleSubmit = async (e) => {
+  e.preventDefault();   // 🔥 IMPORTANT — Stops page reload
+
+  if (!member?._id && !member?.id) {
+    toast.error("Missing Member ID");
+    return;
+  }
+
+  try {
+    setIsSubmitting(true);
+
+    // 🔥 Build medicalReports
+    const medicalReports = uploads
+      .filter(u => u.title && u.fileUrl)
+      .map(u => ({
+        name: u.title,
+        files: [u.fileUrl]
+      }));
+
+    // 🔥 Build final data from formData state
+    const payload = {
+      ...formData,
+      medicalReports,
+      memberId: member._id || member.id
+    };
+
+    let response;
+
+    if (isEdit) {
+      response = await medicalHistoryService.updateMedicalHistory(
+        initialData._id,
+        member._id || member.id,
+        payload
+      );
+      toast.success("Medical History Updated Successfully");
+    } else {
+      response = await medicalHistoryService.createMedicalHistory(payload);
+      toast.success("Medical History Created Successfully");
     }
 
-    try {
-      setIsSubmitting(true);
-      console.log('Form submission started:', { isEdit, initialData });
-      console.log('Member data:', member);
-      console.log('Form data before transform:', formData);
-
-      // Transform the data to match API requirements
-      const transformedData = {
-        memberId: member._id || member.id,
-        medicalReports: uploads
-          .filter(upload => upload.title && upload.fileUrl)
-          .map(upload => ({
-            name: upload.title,
-            files: [upload.fileUrl]
-          })),
-        treatingDoctors: formData.treatingDoctors.map(doctor => ({
-          name: doctor.name,
-          hospitalName: doctor.hospitalName,
-          speciality: doctor.speciality
-        })),
-        followUps: formData.followUps.map(followUp => ({
-          date: followUp.date ? new Date(followUp.date).toISOString() : null,
-          specialistDetails: followUp.specialistDetails,
-          remarks: followUp.remarks
-        })),
-        familyHistory: formData.familyHistory.map(history => ({
-          condition: history.condition,
-          relationship: history.relationship
-        })),
-        allergies: formData.allergies,
-        currentMedications: formData.currentMedications,
-        surgeries: formData.surgeries.map(surgery => ({
-          procedure: surgery.procedure,
-          date: surgery.date ? new Date(surgery.date).toISOString() : null,
-          surgeonName: surgery.surgeonName
-        })),
-        previousMedicalConditions: formData.previousConditions.map(condition => {
-          console.log('Processing condition:', condition);
-          return {
-            condition: condition.condition,
-            diagnosedAt: condition.diagnosedAt ? new Date(condition.diagnosedAt).toISOString() : null,
-            treatmentReceived: condition.treatmentReceived,
-            notes: condition.notes || '',
-            status: condition.status
-          };
-        }),
-        immunizations: formData.immunizationHistory.map(immunization => ({
-          vaccine: immunization.vaccination,
-          date: immunization.dateReceived ? new Date(immunization.dateReceived).toISOString() : null
-        })),
-        currentSymptoms: formData.currentSymptoms,
-        healthInsurance: [{
-          provider: formData.healthInsurance.provider,
-          policyNumber: formData.healthInsurance.policyNumber,
-          expiryDate: formData.healthInsurance.expiryDate ? new Date(formData.healthInsurance.expiryDate).toISOString() : null
-        }],
-        lifestyleHabits: formData.lifestyleHabits,
-        medicalTestResults: formData.medicalTestResults.map(test => ({
-          name: test.name,
-          date: test.date ? new Date(test.date).toISOString() : null,
-          results: test.results
-        }))
-      };
-
-      console.log('Transformed data:', transformedData);
-
-      // Use the appropriate service method based on mode
-      let response;
-      if (isEdit) {
-        console.log('Updating medical history with:', {
-          historyId: initialData._id,
-          memberId: member._id || member.id,
-          data: transformedData
-        });
-        response = await medicalHistoryService.updateMedicalHistory(initialData._id, member._id || member.id, transformedData);
-        console.log('Update response:', response);
-        toast.success('Medical history updated successfully');
-      } else {
-        console.log('Creating new medical history:', transformedData);
-        response = await medicalHistoryService.createMedicalHistory(transformedData);
-        console.log('Create response:', response);
-        toast.success('Medical history created successfully');
-      }
-
-      if (response) {
-        onSave(response);
-        onClose();
-      } else {
-        throw new Error(isEdit ? 'Failed to update medical history' : 'Failed to create medical history');
-      }
-    } catch (error) {
-      console.error(isEdit ? 'Error updating medical history:' : 'Error creating medical history:', error);
-      toast.error(error.message || (isEdit ? 'Failed to update medical history' : 'Failed to create medical history'));
-    } finally {
-      setIsSubmitting(false);
+    if (response) {
+      onSave(response);
+      onClose();
     }
-  };
+
+  } catch (error) {
+    toast.error("Something went wrong while saving");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
@@ -447,15 +603,23 @@ const AddMedicalHistory = ({ member, onClose, onSave, initialData, isEdit = fals
             <FaTimes className="w-5 h-5" />
           </button>
         </div>
-
+  {/* onSubmit={handleSubmit} */}
+          <form onSubmit={handleSubmit} className="space-y-6">
         {/* Main Content - Add padding bottom to account for fixed footer */}
         <div className="p-6 pb-24 overflow-y-auto max-h-[calc(100vh-16rem)]">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        
+
             {/* Member Details Card */}
             <MemberBasicInfo member={member} />
 
             {/* Primary Care Physician */}
-            <PrimaryCarePhysician data={formData.primaryCarePhysician} />
+            {/* <PrimaryCarePhysician data={formData.primaryCarePhysician} /> */}
+
+            <PrimaryCarePhysician
+              data={formData.primaryCarePhysician}
+              handleInputChange={handleInputChange}
+            />
+
 
             {/* Medical History Section */}
             <MedicalHistorySection
@@ -495,14 +659,24 @@ const AddMedicalHistory = ({ member, onClose, onSave, initialData, isEdit = fals
               <div className="space-y-4">
                 {uploads.map((upload, index) => (
                   <div key={index} className="space-y-3">
-                    <UploadSection
+                    {/* <UploadSection
                       title={upload.title}
                       onTitleChange={(title) => handleUploadTitleChange(index, title)}
                       onFileSelect={(file) => handleFileSelect(index, file)}
                       onRemove={uploads.length > 1 ? () => handleRemoveUpload(index) : undefined}
                       error={upload.error}
                     />
-                    
+                     */}
+                     <UploadSection
+                        title={upload.title}
+                        onTitleChange={(t) => handleTitleChange(index, t)}
+                        onFileSelect={(file) => handleFileSelect(index, file)}
+                        localFile={upload.localFile}
+                        error={upload.error}
+                        isUploading={upload.isUploading}
+                        onRemove={uploads.length > 1 ? () => removeUploadField(index) : undefined}
+                      />
+
                     {upload.localFile && (
                       <div className="mt-2 space-y-2">
                         <div className="flex items-center justify-between bg-white p-3 rounded border">
@@ -525,7 +699,7 @@ const AddMedicalHistory = ({ member, onClose, onSave, initialData, isEdit = fals
                 ))}
               </div>
             </div>
-          </form>
+        
         </div>
 
         {/* Fixed Footer */}
@@ -538,18 +712,19 @@ const AddMedicalHistory = ({ member, onClose, onSave, initialData, isEdit = fals
           >
             Cancel
           </button>
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-blue-300"
-            disabled={isSubmitting}
-          >
-            {isSubmitting 
-              ? (isEdit ? 'Updating...' : 'Creating...') 
-              : (isEdit ? 'Update Medical History' : 'Create Medical History')
-            }
-          </button>
+            <button
+              type="submit"    // ✔ only submit, no click handler
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-blue-300"
+              disabled={isSubmitting}
+            >
+              {isSubmitting 
+                ? (isEdit ? 'Updating...' : 'Creating...') 
+                : (isEdit ? 'Update Medical History' : 'Create Medical History')
+              }
+            </button>
+             
         </div>
+         </form>
       </div>
     </div>
   );
