@@ -21,6 +21,7 @@ const ViewMedicalHistory = ({ member, onClose, initialData, onDelete }) => {
     treatingDoctors: false,
     followUps: false,
     previousConditions: false,
+    previousMedicalConditions: false,
     surgeries: false,
     allergies: false,
     currentMedications: false,
@@ -29,7 +30,8 @@ const ViewMedicalHistory = ({ member, onClose, initialData, onDelete }) => {
     medicalTestResults: false,
     currentSymptoms: false,
     lifestyleHabits: false,
-    healthInsurance: false
+    healthInsurance: false,
+    immunizations:false
   });
 
   const [medicalHistory, setMedicalHistory] = useState(null);
@@ -408,23 +410,44 @@ const ViewMedicalHistory = ({ member, onClose, initialData, onDelete }) => {
   header.style.paddingBottom = "8px";
   header.style.marginBottom = "15px";
 
-  header.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div style="display:flex; align-items:center;">
-        <img src="assets/logo_new.png" style="height:50px; margin-right:10px;" />
-        <div>
-          <strong style="font-size:18px;">Assist<span style="color:#1a8cff;">Health</span></strong><br>
-          <span style="font-size:12px;">PERSONALIZED HEALTH SUPPORT</span>
-        </div>
-      </div>
+header.innerHTML = `
+  <div style="
+    display:flex; 
+    justify-content:space-between; 
+    align-items:center; 
+    width:100%;
+  ">
 
-      <div style="font-size:13px; text-align:right;">
-        <strong>AssistHealth Navigator :</strong><br>
-        Navigator Name : ${navigatorName}<br>
-        Contact Number : ${navigatorPhone}
-      </div>
+    <!-- LEFT: LOGO -->
+    <div style="display:flex; align-items:center; width:33%;">
+      <img src="assets/logo_new.png" style="height:55px;" />
     </div>
-  `;
+
+    <!-- CENTER: TITLE BLOCK -->
+    <div style="
+      width:34%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      line-height:1.2;
+    ">
+      <strong style="font-size:18px;">Assist<span style="color:#1a8cff;">Health</span></strong>
+      <span style="font-size:12px;">PERSONALIZED HEALTH SUPPORT</span>
+    </div>
+
+    <!-- RIGHT: NAVIGATOR DETAILS -->
+    <div style="font-size:13px; text-align:right; width:33%;">
+      <strong>AssistHealth Navigator :</strong><br>
+      Navigator Name : ${navigatorName}<br>
+      Contact Number : ${navigatorPhone}
+    </div>
+
+  </div>
+`;
+
+
 
   content.appendChild(header);
 
@@ -787,6 +810,8 @@ html2pdf()
                   const allTrue = Object.keys(selectedSections)
                     .reduce((acc, key) => ({ ...acc, [key]: true }), {});
                   setSelectedSections(allTrue);
+                  console.log(allTrue);
+                  
                 }}
                 className="px-3 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition"
               >
