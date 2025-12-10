@@ -12,68 +12,126 @@ const Login = ({ onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   event.stopPropagation();
     
-    if (isLoading || !email || !password) return;
+  //   if (isLoading || !email || !password) return;
     
-    setError('');
-    setIsLoading(true);
+  //   setError('');
+  //   setIsLoading(true);
 
-    try {
-      const response = await login(email, password);
+  //   try {
+  //     const response = await login(email, password);
       
-      // The response is already processed by the interceptor to return response.data
-      if (response.status === 'success') {
-        // Check if password reset is required
-        if (response.data.user.passwordResetRequired) {
-          // Store the token temporarily for password reset
-          localStorage.setItem('temp_token', response.data.tokens.accessToken);
-          navigate('/forgot-password');
-          return;
-        }
+  //     // The response is already processed by the interceptor to return response.data
+  //     if (response.status === 'success') {
+  //       // Check if password reset is required
+  //       if (response.data.user.passwordResetRequired) {
+  //         // Store the token temporarily for password reset
+  //         localStorage.setItem('temp_token', response.data.tokens.accessToken);
+  //         navigate('/forgot-password');
+  //         return;
+  //       }
         
-        // Normal login flow
-        localStorage.setItem('token', response.data.tokens.accessToken);
-        // Decode token expiry 1.11.25
-        const payload = JSON.parse(atob(response.data.tokens.accessToken.split('.')[1]));
-        localStorage.setItem('tokenExpiry', payload.exp * 1000);
-              // Decode token expiry 1.11.25
-        localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+  //       // Normal login flow
+  //       localStorage.setItem('token', response.data.tokens.accessToken);
+  //       // Decode token expiry 1.11.25
+  //       const payload = JSON.parse(atob(response.data.tokens.accessToken.split('.')[1]));
+  //       localStorage.setItem('tokenExpiry', payload.exp * 1000);
+  //             // Decode token expiry 1.11.25
+  //       localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+  //       localStorage.setItem('isAuthenticated', 'true');
+  //       localStorage.setItem('user', JSON.stringify(response.data.user));
 
-        // Fetch profile information
-        try {
-          const profileResponse = await profileService.getProfile();
-          if (profileResponse.status === 'success') {
-            localStorage.setItem('userProfile', JSON.stringify(profileResponse.data));
-          }
-        } catch (profileError) {
-          console.error('Error fetching profile:', profileError);
-        }
+  //       // Fetch profile information
+  //       try {
+  //         const profileResponse = await profileService.getProfile();
+  //         if (profileResponse.status === 'success') {
+  //           localStorage.setItem('userProfile', JSON.stringify(profileResponse.data));
+  //         }
+  //       } catch (profileError) {
+  //         console.error('Error fetching profile:', profileError);
+  //       }
         
-        // Call the onLogin callback and navigate
-        onLogin();
-        navigate('/');
-      } else {
-        throw new Error('Login failed. Please try again.');
+  //       // Call the onLogin callback and navigate
+  //       onLogin();
+  //       navigate('/');
+  //     } else {
+  //       throw new Error('Login failed. Please try again.');
+  //     }
+  //   } catch (err) {
+  //     console.error('Login error:', err);
+  //     setError(err.message || err.error || 'Invalid email or password. Please try again.');
+  //     // Clear any authentication data in case of error
+  //     localStorage.removeItem('token');
+  //     localStorage.removeItem('refreshToken');
+  //     localStorage.removeItem('user');
+  //     localStorage.removeItem('isAuthenticated');
+  //     localStorage.removeItem('temp_token');
+  //     localStorage.removeItem('userProfile');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const handleSubmit = async (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  
+  if (isLoading || !email || !password) return;
+  
+  setError('');
+  setIsLoading(true);
+
+  try {
+    const response = await login(email, password);
+
+    if (response.status === 'success') {
+      if (response.data.user.passwordResetRequired) {
+        localStorage.setItem('temp_token', response.data.tokens.accessToken);
+        navigate('/forgot-password');
+        return;
       }
-    } catch (err) {
-      console.error('Login error:', err);
-      setError(err.message || err.error || 'Invalid email or password. Please try again.');
-      // Clear any authentication data in case of error
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('temp_token');
-      localStorage.removeItem('userProfile');
-    } finally {
-      setIsLoading(false);
+
+      // Normal login flow
+      localStorage.setItem('token', response.data.tokens.accessToken);
+      // ❌ Removed token expiry decoding
+      // ❌ Removed: tokenExpiry
+      localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+
+      // Fetch profile information
+      try {
+        const profileResponse = await profileService.getProfile();
+        if (profileResponse.status === 'success') {
+          localStorage.setItem('userProfile', JSON.stringify(profileResponse.data));
+        }
+      } catch (profileError) {
+        console.error('Error fetching profile:', profileError);
+      }
+
+      onLogin();
+      navigate('/');
+    } else {
+      throw new Error('Login failed. Please try again.');
     }
-  };
+  } catch (err) {
+    console.error('Login error:', err);
+    setError(err.message || err.error || 'Invalid email or password. Please try again.');
+    
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('temp_token');
+    localStorage.removeItem('userProfile');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleInputChange = (e) => {
     // Clear error when user starts typing
