@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaSearch, FaFilter, FaUndo } from "react-icons/fa";
-import { PHYSIOTHERAPY_SERVICES } from "../AddEditDiagnostics/PhysiotherapyData";
+import { NURSING_SERVICES } from "../AddEditDiagnostics/PhysiotherapyData";
 
 const HomecareFilter = ({ onApply }) => {
   const [search, setSearch] = useState("");
@@ -64,7 +64,7 @@ const HomecareFilter = ({ onApply }) => {
           className="w-full sm:w-[48%] lg:w-[220px] border border-gray-200 rounded-lg px-3 py-2 text-sm"
         >
           <option value="">Services</option>
-          {PHYSIOTHERAPY_SERVICES.map((srv) => (
+          {NURSING_SERVICES.map((srv) => (
             <option key={srv} value={srv}>
               {srv}
             </option>
