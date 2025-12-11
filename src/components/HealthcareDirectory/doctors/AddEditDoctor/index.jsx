@@ -30,42 +30,167 @@ export default function AddEditDoctor({
   // ---------------------------------------------------------------
   // MAIN FORM STATE
   // ---------------------------------------------------------------
-  const [formData, setFormData] = useState({
-    name: initialData?.name || "",
-    email: initialData?.email || "",
-    phone: initialData?.phone?.replace("+91", "") || "",
-    gender: initialData?.gender || "",
-   // qualification: initialData?.qualification || [],
-   qualification: Array.isArray(initialData?.qualification)
-  ? initialData.qualification
-  : initialData?.qualification
-  ? [initialData.qualification]
-  : [],
-    medicalCouncilRegistrationNumber:
-      initialData?.medicalCouncilRegistrationNumber || "",
-    experienceYears: initialData?.experienceYears || "",
-    languagesSpoken: initialData?.languagesSpoken || [],
-    specialty: initialData?.specialty || "",
-    specializations: initialData?.specializations || [],
-    serviceTypes: initialData?.serviceTypes || [],
-    areas:
-      initialData?.areas?.map((a) => ({
-        pincode: a.pincode,
-        region: a.region,
-        _id: a._id || a.region,
-      })) || [],
-    address: initialData?.offlineAddress
-      ? {
-          street: initialData.offlineAddress.description || "",
-          landmark: initialData.offlineAddress.landmark || "",
-          pincode: initialData.offlineAddress.pinCode || "",
-          region: initialData.offlineAddress.region || "",
-          city: initialData.offlineAddress.city || "",
-          state: initialData.offlineAddress.state || "",
-          country: initialData.offlineAddress.country || "India",
-        }
-      : {
-          street: "",
+  // const [formData, setFormData] = useState({
+  //   name: initialData?.name || "",
+  //   email: initialData?.email || "",
+  //   phone: initialData?.phone?.replace("+91", "") || "",
+  //   gender: initialData?.gender || "",
+  //  // qualification: initialData?.qualification || [],
+  //  qualification: Array.isArray(initialData?.qualification)
+  // ? initialData.qualification
+  // : initialData?.qualification
+  // ? [initialData.qualification]
+  // : [],
+  //   medicalCouncilRegistrationNumber:
+  //     initialData?.medicalCouncilRegistrationNumber || "",
+  //   experienceYears: initialData?.experienceYears || "",
+  //   languagesSpoken: initialData?.languagesSpoken || [],
+  //   specialty: initialData?.specialty || "",
+  //   specializations: initialData?.specializations || [],
+  //   serviceTypes: initialData?.serviceTypes || [],
+  //   areas:
+  //     initialData?.areas?.map((a) => ({
+  //       pincode: a.pincode,
+  //       region: a.region,
+  //       _id: a._id || a.region,
+  //     })) || [],
+  //   address: initialData?.offlineAddress
+  //     ? {
+  //         street: initialData.offlineAddress.description || "",
+  //         landmark: initialData.offlineAddress.landmark || "",
+  //         pincode: initialData.offlineAddress.pinCode || "",
+  //         region: initialData.offlineAddress.region || "",
+  //         city: initialData.offlineAddress.city || "",
+  //         state: initialData.offlineAddress.state || "",
+  //         country: initialData.offlineAddress.country || "India",
+  //       }
+  //     : {
+  //         street: "",
+  //         landmark: "",
+  //         pincode: "",
+  //         region: "",
+  //         city: "",
+  //         state: "",
+  //         country: "India",
+  //       },
+  //   onlineConsultationTimeSlots:
+  //     initialData?.onlineConsultationTimeSlots || [],
+  //   offlineConsultationTimeSlots:
+  //     initialData?.offlineConsultationTimeSlots || [],
+  //   homeVisitEnabled: initialData?.homeVisitEnabled || false,
+  //   homeVisitLocations: initialData?.homeVisitLocations || [],
+  //   photoUrl: initialData?.photoUrl || "",
+  //   photoPublicId: initialData?.photoPublicId || "",
+  //   introduction: initialData?.introduction || "",
+  // });
+  // 9.12.25
+  // ---------------------------------------------------------------
+const normalizeDoctor = (d) => {
+  if (!d) return null;
+
+  return {
+    name: d.name || "",
+    email: d.email || "",
+    phone: d.phone?.replace("+91", "") || "",
+    gender: d.gender || "",
+
+    qualification: Array.isArray(d.qualification) ? d.qualification : [],
+    medicalCouncilRegistrationNumber: d.medicalCouncilRegistrationNumber || "",
+    experienceYears: d.experienceYears || "",
+    languagesSpoken: d.languagesSpoken || [],
+
+    specialty: d.specialty || "",
+    specializations: d.specializations || [],
+
+    serviceTypes: d.serviceTypes || [],
+
+    areas: (d.areas || []).map(a => ({
+      pincode: a.pincode || "",
+      region: a.region || ""
+    })),
+
+    // address: {
+    //   street: d.offlineAddress?.description || "",
+    //   landmark: d.offlineAddress?.landmark || "",
+    //   pincode: d.offlineAddress?.pinCode || "",
+    //   region: d.offlineAddress?.region || "",
+    //   city: d.offlineAddress?.city || "",
+    //   state: d.offlineAddress?.state || "",
+    //   country: d.offlineAddress?.country || "India",
+    // },
+    offlineAddress1: {
+      description: d.offlineAddress1?.description || "",
+      landmark: d.offlineAddress1?.landmark || "",
+      pincode: d.offlineAddress1?.pincode || "",
+      region: d.offlineAddress1?.region || "",
+      city: d.offlineAddress1?.city || "",
+      state: d.offlineAddress1?.state || "",
+      country: d.offlineAddress1?.country || "India",
+    },
+
+    offlineAddress2: {
+      description: d.offlineAddress2?.description || "",
+      landmark: d.offlineAddress2?.landmark || "",
+      pincode: d.offlineAddress2?.pincode || "",
+      region: d.offlineAddress2?.region || "",
+      city: d.offlineAddress2?.city || "",
+      state: d.offlineAddress2?.state || "",
+      country: d.offlineAddress2?.country || "India",
+    },
+
+
+    onlineConsultationTimeSlots: d.onlineConsultationTimeSlots || [],
+    offlineConsultationTimeSlots: d.offlineConsultationTimeSlots || [],
+
+    homeVisitEnabled: d.homeVisitEnabled || false,
+
+    homeVisitLocations: (d.homeVisitLocations || []).map(loc => ({
+      locationName: loc.locationName || "",
+      days: loc.days || [],
+      fromTime: loc.fromTime || "",
+      toTime: loc.toTime || "",
+      areas: (loc.areas || []).map(a => ({
+        pincode: a.pincode || "",
+        region: a.region || ""
+      })),
+      city: loc.city || ""
+    })),
+
+    photoUrl: d.photoUrl || "",
+    photoPublicId: d.photoPublicId || "",
+    introduction: d.introduction || "",
+  };
+};
+
+
+  // ---------------------------------------------------------------
+const [formData, setFormData] = useState(
+  isEditing && initialData
+    ? normalizeDoctor(initialData)
+    : {
+        name: "",
+        email: "",
+        phone: "",
+        gender: "",
+        qualification: [],
+        medicalCouncilRegistrationNumber: "",
+        experienceYears: "",
+        languagesSpoken: [],
+        specialty: "",
+        specializations: [],
+        serviceTypes: [],
+        areas: [],
+        // address: {
+        //   street: "",
+        //   landmark: "",
+        //   pincode: "",
+        //   region: "",
+        //   city: "",
+        //   state: "",
+        //   country: "India",
+        // },
+        offlineAddress1: {
+          description: "",
           landmark: "",
           pincode: "",
           region: "",
@@ -73,16 +198,27 @@ export default function AddEditDoctor({
           state: "",
           country: "India",
         },
-    onlineConsultationTimeSlots:
-      initialData?.onlineConsultationTimeSlots || [],
-    offlineConsultationTimeSlots:
-      initialData?.offlineConsultationTimeSlots || [],
-    homeVisitEnabled: initialData?.homeVisitEnabled || false,
-    homeVisitLocations: initialData?.homeVisitLocations || [],
-    photoUrl: initialData?.photoUrl || "",
-    photoPublicId: initialData?.photoPublicId || "",
-    introduction: initialData?.introduction || "",
-  });
+
+        offlineAddress2: {
+          description: "",
+          landmark: "",
+          pincode: "",
+          region: "",
+          city: "",
+          state: "",
+          country: "India",
+        },
+
+        onlineConsultationTimeSlots: [],
+        offlineConsultationTimeSlots: [],
+        homeVisitEnabled: false,
+        homeVisitLocations: [],
+        photoUrl: "",
+        photoPublicId: "",
+        introduction: "",
+      }
+);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -237,17 +373,41 @@ const [isLoadingRegions, setIsLoadingRegions] = useState(false);
         }))
       );
 
-      if (section === "address") {
+      // if (section === "address") {
+      //   const first = offices[0];
+      //   setFormData((prev) => ({
+      //     ...prev,
+      //     address: {
+      //       ...prev.address,
+      //       city: first.District,
+      //       state: first.State,
+      //     },
+      //   }));
+      // }
+      if (section === "address1") {
         const first = offices[0];
-        setFormData((prev) => ({
+        setFormData(prev => ({
           ...prev,
-          address: {
-            ...prev.address,
+          offlineAddress1: {
+            ...prev.offlineAddress1,
             city: first.District,
             state: first.State,
-          },
+          }
         }));
       }
+
+      if (section === "address2") {
+        const first = offices[0];
+        setFormData(prev => ({
+          ...prev,
+          offlineAddress2: {
+            ...prev.offlineAddress2,
+            city: first.District,
+            state: first.State,
+          }
+        }));
+      }
+
     } catch (e) {
       showSnackbar("Error fetching pincode", "error");
     } finally {
@@ -270,28 +430,69 @@ const [isLoadingRegions, setIsLoadingRegions] = useState(false);
       showSnackbar("Upload failed", "error");
     }
   };
-  const handleAddressChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      address: {
-        ...prev.address,
-        [field]: value
-      }
-    }));
-  };
-    const handleAddressPincodeChange = (e) => {
-    const pincode = e.target.value;
-    handleAddressChange('pincode', pincode);
-    
-    if (pincode.length === 6) {
-      fetchLocationDetails(pincode, 'address');
-    } else {
-      setRegionOptions([]);
-      handleAddressChange('region', '');
-      handleAddressChange('city', '');
-      handleAddressChange('state', '');
+  // const handleAddressChange = (field, value) => {
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     address: {
+  //       ...prev.address,
+  //       [field]: value
+  //     }
+  //   }));
+  // };
+  //10.12.25
+  const handleAddress1Change = (field, value) => {
+  setFormData(prev => ({
+    ...prev,
+    offlineAddress1: {
+      ...prev.offlineAddress1,
+      [field]: value
     }
-  };
+  }));
+};
+
+const handleAddress2Change = (field, value) => {
+  setFormData(prev => ({
+    ...prev,
+    offlineAddress2: {
+      ...prev.offlineAddress2,
+      [field]: value
+    }
+  }));
+};
+
+  //   const handleAddressPincodeChange = (e) => {
+  //   const pincode = e.target.value;
+  //   handleAddressChange('pincode', pincode);
+    
+  //   if (pincode.length === 6) {
+  //     fetchLocationDetails(pincode, 'address');
+  //   } else {
+  //     setRegionOptions([]);
+  //     handleAddressChange('region', '');
+  //     handleAddressChange('city', '');
+  //     handleAddressChange('state', '');
+  //   }
+  // };
+  //10.12.25
+const handleAddress1Pincode = (e) => {
+  const pin = e.target.value;
+  handleAddress1Change("pincode", pin);
+
+  if (pin.length === 6) {
+    fetchLocationDetails(pin, "address1");
+  }
+};
+
+const handleAddress2Pincode = (e) => {
+  const pin = e.target.value;
+  handleAddress2Change("pincode", pin);
+
+  if (pin.length === 6) {
+    fetchLocationDetails(pin, "address2");
+  }
+};
+
+
 
   const handleServicePincodeChange = (e) => {
     const pincode = e.target.value;
@@ -303,16 +504,26 @@ const [isLoadingRegions, setIsLoadingRegions] = useState(false);
     }
   };
 
+  // const handleServiceAreaChange = (newAreas) => {
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     areas: newAreas.map(area => ({
+  //       pincode: area.pincode,
+  //       region: area.region,
+  //       _id: area._id || area.region
+  //     }))
+  //   }));
+  // };
   const handleServiceAreaChange = (newAreas) => {
-    setFormData(prev => ({
-      ...prev,
-      areas: newAreas.map(area => ({
-        pincode: area.pincode,
-        region: area.region,
-        _id: area._id || area.region
-      }))
-    }));
-  };
+  setFormData(prev => ({
+    ...prev,
+    areas: newAreas.map(area => ({
+      pincode: area.pincode,
+      region: area.region
+    }))
+  }));
+};
+
 
   const handleRegionChange = (selectedOptions) => {
     const currentPincode = formData.areas.length > 0 ? formData.areas[0].pincode : '';
@@ -322,11 +533,15 @@ const [isLoadingRegions, setIsLoadingRegions] = useState(false);
     const existingAreas = formData.areas.filter(area => area.pincode !== selectedPincode);
     
     // Add new areas with the current pincode
+    // const newAreas = selectedOptions.map(option => ({
+    //   pincode: selectedPincode,
+    //   region: option.value,
+    //   _id: option.value
+    // }));
     const newAreas = selectedOptions.map(option => ({
-      pincode: selectedPincode,
-      region: option.value,
-      _id: option.value
-    }));
+        pincode: selectedPincode,
+        region: option.value
+      }));
 
     // Combine existing areas with new areas
     setFormData(prev => ({
@@ -691,14 +906,38 @@ const handleRemoveDaySlots = (type, dayIndex) => {
             />
           )} */}
           
-           {formData.serviceTypes.includes('offline') && (
+           {/* {formData.serviceTypes.includes('offline') && (
             <AddressSection
               formData={formData}
               handleAddressChange={handleAddressChange}
               regionOptions={regionOptions}
               handlePincodeChange={handleAddressPincodeChange}
             />
-          )}
+          )} */}
+          {formData.serviceTypes.includes("offline") && (
+                  <>
+                    {/* ============ Offline Address 1 ============ */}
+                    <AddressSection
+                      title="Work Location 1"
+                      formData={{ address: formData.offlineAddress1 }}
+                      handleAddressChange={handleAddress1Change}
+                      regionOptions={regionOptions}
+                      handlePincodeChange={handleAddress1Pincode}
+                    />
+
+                    {/* ============ Offline Address 2 ============ */}
+                    <AddressSection
+                      title="Work Location 2"
+                      formData={{ address: formData.offlineAddress2 }}
+                      handleAddressChange={handleAddress2Change}
+                      regionOptions={regionOptions}
+                      handlePincodeChange={handleAddress2Pincode}
+                    />
+                  </>
+                )}
+
+
+          
 
           {formData.serviceTypes.includes('online') && (
             <TimeSlotSection

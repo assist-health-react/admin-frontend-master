@@ -22,7 +22,7 @@ const BasicInfoSection = ({
         />
       </div>
 
-      <div>
+      {/* <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Speciality *
         </label>
@@ -38,7 +38,7 @@ const BasicInfoSection = ({
           classNamePrefix="react-select"
           required
         />
-      </div>
+      </div> */}
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -1,213 +1,3 @@
-// import { useState, useEffect } from 'react'
-// import { doctorsService } from '../../../services/doctorsService'
-// import DoctorsList from './DoctorsList'
-// import DoctorDetail from './DoctorDetail'
-// import AddEditHospital from './AddEditHospital'
-// import AssignedMembersModal from './AssignedMembersModal'
-
-// const ShowHospital = () => {
-//   const itemsPerPage = 9 // Show 9 doctors per page (3x3 grid)
-
-//   const [doctors, setDoctors] = useState([])
-//   const [filteredDoctors, setFilteredDoctors] = useState([])
-//   const [filters, setFilters] = useState({})
-
-//   const [isLoading, setIsLoading] = useState(true)
-//   const [error, setError] = useState(null)
-//   const [currentPage, setCurrentPage] = useState(1)
-//   const [pagination, setPagination] = useState({
-//     total: 0,
-//     page: 1,
-//     pages: 1,
-//     limit: itemsPerPage
-//   })
-
-//   const [selectedDoctor, setSelectedDoctor] = useState(null)
-//   const [showAddForm, setShowAddForm] = useState(false)
-//   const [showAssignedMembers, setShowAssignedMembers] = useState(false)
-
-//   // ✅ Fetch all doctors from API
-//   const fetchDoctors = async () => {
-//     try {
-//       setIsLoading(true)
-//       setError(null)
-
-//       const params = {
-//         page: currentPage,
-//         limit: itemsPerPage
-//       }
-
-//       const response = await doctorsService.getDoctors(params)
-
-//       if (response.status === 'success') {
-//         setDoctors(response.data || [])
-//         setFilteredDoctors(response.data || [])
-//         setPagination(response.pagination || { total: 0, page: 1, pages: 1, limit: itemsPerPage })
-//       } else {
-//         setError('Failed to fetch doctors. Please try again later.')
-//       }
-//     } catch (err) {
-//       console.error('Error fetching doctors:', err)
-//       setError('Failed to fetch doctors. Please try again later.')
-//     } finally {
-//       setIsLoading(false)
-//     }
-//   }
-
-//   // ✅ Run fetchDoctors on mount + when page changes
-//   useEffect(() => {
-//     fetchDoctors()
-//   }, [currentPage])
-
-//   // ✅ When filters change, apply them to doctors list
-//   useEffect(() => {
-//     if (!filters || Object.keys(filters).length === 0) {
-//       setFilteredDoctors(doctors)
-//       return
-//     }
-
-//     const filtered = doctors.filter((doc) => {
-//       const search = filters.search?.toLowerCase() || ''
-
-//       if (
-//         search &&
-//         ![doc.name, doc.email, doc.phone]
-//           .filter(Boolean)
-//           .join(' ')
-//           .toLowerCase()
-//           .includes(search)
-//       )
-//         return false
-
-//       if (filters.department && doc.departmentDetails?.department !== filters.department)
-//         return false
-
-//       if (filters.service && !(doc.departmentDetails?.services || []).includes(filters.service))
-//         return false
-
-//       if (
-//         filters.subService &&
-//         !(doc.departmentDetails?.subServices || []).includes(filters.subService)
-//       )
-//         return false
-
-//       if (
-//         filters.consultationType &&
-//         !(doc.serviceTypes || []).includes(filters.consultationType)
-//       )
-//         return false
-
-//       if (
-//         filters.city &&
-//         !doc.offlineAddress?.city?.toLowerCase().includes(filters.city.toLowerCase())
-//       )
-//         return false
-
-//       if (
-//         filters.state &&
-//         !doc.offlineAddress?.state?.toLowerCase().includes(filters.state.toLowerCase())
-//       )
-//         return false
-
-//       return true
-//     })
-
-//     setFilteredDoctors(filtered)
-//   }, [filters, doctors])
-
-//   // ✅ Receive filters from DoctorsFilter.jsx
-//   const handleFilterChange = (newFilters) => {
-//     console.log('Received Filters:', newFilters)
-//     setFilters(newFilters)
-//     setCurrentPage(1)
-//   }
-
-//   // ✅ View Profile
-//   const handleViewProfile = async (doctor) => {
-//     try {
-//       const response = await doctorsService.getDoctorById(doctor._id)
-//       if (response.status === 'success' && response.data) {
-//         setSelectedDoctor(response.data)
-//       } else {
-//         setError('Failed to fetch doctor details.')
-//       }
-//     } catch (err) {
-//       setError('Failed to fetch doctor details.')
-//       console.error('Error fetching doctor details:', err)
-//     }
-//   }
-
-//   // ✅ View Members
-//   const handleViewMembers = async (doctor) => {
-//     try {
-//       const response = await doctorsService.getDoctorById(doctor.id)
-//       if (response.status === 'success' && response.data) {
-//         setSelectedDoctor(response.data)
-//         setShowAssignedMembers(true)
-//       } else {
-//         setError('Failed to fetch doctor details.')
-//       }
-//     } catch (err) {
-//       setError('Failed to fetch doctor details.')
-//       console.error('Error fetching doctor details:', err)
-//     }
-//   }
-
-//   return (
-//     <div className="p-4 h-[calc(100vh-80px)] flex flex-col overflow-hidden">
-//       <DoctorsList
-//         doctors={filteredDoctors}
-//         isLoading={isLoading}
-//         onViewProfile={handleViewProfile}
-//         onViewMembers={handleViewMembers}
-//         onAddDoctor={() => setShowAddForm(true)}
-//         pagination={pagination}
-//         currentPage={currentPage}
-//         setCurrentPage={setCurrentPage}
-//         onFilterChange={handleFilterChange}
-//       />
-
-//       {showAddForm && (
-//         <AddEditHospital
-//           onClose={() => setShowAddForm(false)}
-//           onSuccess={() => {
-//             setShowAddForm(false)
-//             fetchDoctors() // Refresh list after adding
-//           }}
-//         />
-//       )}
-
-//       {selectedDoctor && !showAssignedMembers && (
-//         <DoctorDetail
-//           doctor={selectedDoctor}
-//           onClose={() => setSelectedDoctor(null)}
-//           onDeleteSuccess={() => {
-//             setSelectedDoctor(null)
-//             fetchDoctors()
-//           }}
-//         />
-//       )}
-
-//       {showAssignedMembers && selectedDoctor && (
-//         <AssignedMembersModal
-//           isOpen={showAssignedMembers}
-//           onClose={() => {
-//             setShowAssignedMembers(false)
-//             setSelectedDoctor(null)
-//           }}
-//           doctor={selectedDoctor}
-//         />
-//       )}
-
-//       {error && <div className="text-red-500 text-center py-4">{error}</div>}
-//     </div>
-//   )
-// }
-
-// export default ShowHospital
-// src/components/HealthcareDirectory/hospitals/index.jsx
-// src/components/HealthcareDirectory/hospitals/index.jsx
-
 import React, { useEffect, useState, useCallback } from "react";
 import HospitalsList from "./HospitalsList";
 import AddEditHospital from "./AddEditHospital";
@@ -266,57 +56,93 @@ export default function ShowHospital() {
   }, [fetchHospitals]);
 
   // Apply filters to hospitals (client-side)
-  useEffect(() => {
-    if (!filters || Object.keys(filters).length === 0) {
-      setFilteredHospitals(hospitals);
-      setPage(1);
-      return;
+useEffect(() => {
+  if (!filters || Object.keys(filters).length === 0) {
+    setFilteredHospitals(hospitals);
+    setPage(1);
+    return;
+  }
+
+  const searchText =
+    filters.search?.toLowerCase() ||
+    filters.searchText?.toLowerCase() || "";
+
+  const result = hospitals.filter((h) => {
+    // -------------------------------
+    // GLOBAL SEARCH (matches everything)
+    // -------------------------------
+    if (searchText) {
+      const searchable = [
+        h.hospitalName,
+        h.email,
+        h.phone,
+        h.address,
+        h.area,
+        h.city,
+        h.state,
+        h.pincode,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      if (!searchable.includes(searchText)) return false;
     }
 
-    const result = hospitals.filter((h) => {
-      const search = filters.search?.toLowerCase() || "";
-
-      if (
-        search &&
-        ![h.hospitalName, h.email, h.phone]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(search)
-      ) return false;
-
-      if (filters.city && !h.city?.toLowerCase().includes(filters.city.toLowerCase()))
+    // -------------------------------
+    // Area (Region) filter
+    // -------------------------------
+    if (filters.area) {
+      if (!h.area?.toLowerCase().includes(filters.area.toLowerCase()))
         return false;
+    }
 
-      if (filters.state && !h.state?.toLowerCase().includes(filters.state.toLowerCase()))
+    // -------------------------------
+    // City filter
+    // -------------------------------
+    if (filters.city) {
+      if (!h.city?.toLowerCase().includes(filters.city.toLowerCase()))
         return false;
+    }
 
-      // Department / service / subService checks
-      if (filters.department) {
-        // filter may provide department name(s)
-        if (!h.department || !h.department.includes(filters.department)) return false;
-      }
+    // -------------------------------
+    // State filter
+    // -------------------------------
+    if (filters.state) {
+      if (!h.state?.toLowerCase().includes(filters.state.toLowerCase()))
+        return false;
+    }
 
-      if (filters.service) {
-        if (!h.services || !h.services.includes(filters.service)) return false;
-      }
+    // -------------------------------
+    // Department filter
+    // -------------------------------
+    if (filters.department) {
+      if (!h.department || !h.department.includes(filters.department))
+        return false;
+    }
 
-      if (filters.subService) {
-        if (!h.subServices || !h.subServices.includes(filters.subService)) return false;
-      }
+    // -------------------------------
+    // Service filter
+    // -------------------------------
+    if (filters.service) {
+      if (!h.services || !h.services.includes(filters.service))
+        return false;
+    }
 
-      // consultationType may not apply to hospitals but keep compatibility
-      if (filters.consultationType) {
-        // hospitals typically won't have serviceTypes, so skip or check if present
-        if (h.serviceTypes && !h.serviceTypes.includes(filters.consultationType)) return false;
-      }
+    // -------------------------------
+    // Sub-service filter
+    // -------------------------------
+    if (filters.subService) {
+      if (!h.subServices || !h.subServices.includes(filters.subService))
+        return false;
+    }
 
-      return true;
-    });
+    return true;
+  });
 
-    setFilteredHospitals(result);
-    setPage(1);
-  }, [filters, hospitals]);
+  setFilteredHospitals(result);
+  setPage(1);
+}, [filters, hospitals]);
 
   // Handlers
   const openAdd = () => {

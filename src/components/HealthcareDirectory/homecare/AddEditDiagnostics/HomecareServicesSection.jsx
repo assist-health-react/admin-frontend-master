@@ -1,5 +1,5 @@
 import React from "react";
-import { PHYSIOTHERAPY_SERVICES } from "./PhysiotherapyData";
+import { NURSING_SERVICES } from "./PhysiotherapyData";
 
 const HomecareServicesSection = ({ formData, setFormData }) => {
   const toggleService = (service) => {
@@ -18,7 +18,7 @@ const HomecareServicesSection = ({ formData, setFormData }) => {
       </h3>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {PHYSIOTHERAPY_SERVICES.map((service) => (
+        {NURSING_SERVICES.map((service) => (
           <label
             key={service}
             className={`flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer ${

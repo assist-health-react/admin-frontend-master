@@ -4,19 +4,20 @@ const AddressSection = ({
   formData, 
   handleAddressChange,
   regionOptions,
-  handlePincodeChange
+  handlePincodeChange,
+  title
 }) => {
   return (
     <div className="bg-gray-50 p-3 rounded-lg">
-      <h4 className="text-base font-medium text-gray-900 mb-3">Address Information</h4>
+      <h4 className="text-base font-medium text-gray-900 mb-3">{title}</h4>
       <div className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Description *
           </label>
           <textarea
-            value={formData.address.street}
-            onChange={(e) => handleAddressChange('street', e.target.value)}
+            value={formData.address.description}
+            onChange={(e) => handleAddressChange('description', e.target.value)}
             className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             rows="3"
             required

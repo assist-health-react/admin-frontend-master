@@ -199,17 +199,43 @@ export default function DoctorsPageFilter({ onApply }) {
   }, []);
 
   // Load dependent sub-specialties from DB
+  // useEffect(() => {
+  //   if (specialtyId) {
+  //     doctorsService.getSubSpecialties(specialtyId).then((res) => {
+  //       if (res.status === "success") {
+  //         setSubSpecialties(res.data);
+  //       }
+  //     });
+  //   } else {
+  //     setSubSpecialties([]);
+  //   }
+  // }, [specialtyId]);
+
+  //9.12.25
   useEffect(() => {
-    if (specialtyId) {
-      doctorsService.getSubSpecialties(specialtyId).then((res) => {
-        if (res.status === "success") {
-          setSubSpecialties(res.data);
-        }
-      });
-    } else {
-      setSubSpecialties([]);
+  if (!specialtyId) {
+    setSubSpecialties([]);
+    return;
+  }
+
+  // Find specialty NAME using ID
+  const selectedSpec = specialties.find(
+    (s) => String(s._id) === String(specialtyId)
+  );
+
+  if (!selectedSpec) {
+    setSubSpecialties([]);
+    return;
+  }
+
+  // Load subs by NAME (what DB expects)
+  doctorsService.getSubSpecialties(selectedSpec.name).then((res) => {
+    if (res.status === "success") {
+      setSubSpecialties(res.data);
     }
-  }, [specialtyId]);
+  });
+}, [specialtyId, specialties]);
+
 
   // RESET
   const resetAll = () => {
@@ -227,7 +253,8 @@ export default function DoctorsPageFilter({ onApply }) {
     onApply({
       search,
       specialtyId,
-      subSpecialtyId,
+      //subSpecialtyId,
+      subSpecialtyName: subSpecialties.find(s => s._id === subSpecialtyId)?.name || "",
       consultationType,
       city: city.trim(),
     });

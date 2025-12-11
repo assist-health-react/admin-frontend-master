@@ -116,14 +116,17 @@ export default function NewDoctors() {
   // ---------------------------------------------
   // LOAD ALL SUB SPECIALTIES (optional but needed for filter)
   // ---------------------------------------------
-  useEffect(() => {
-    async function fetchSubs() {
-      if (!doctorsService.getAllSubSpecialties) return;
-      const res = await doctorsService.getAllSubSpecialties();
-      if (res?.status === "success") setSubSpecialties(res.data);
-    }
-    fetchSubs();
-  }, []);
+  // useEffect(() => {
+  //   async function fetchSubs() {
+  //     if (!doctorsService.getAllSubSpecialties) return;
+  //     const res = await doctorsService.getAllSubSpecialties();
+  //     if (res?.status === "success") setSubSpecialties(res.data);
+  //   }
+  //   fetchSubs();
+  // }, []);
+// LOAD SUB-SPECIALTIES based on selected specialtyId from filter
+
+
 
   useEffect(() => {
     loadDoctors();
@@ -241,14 +244,14 @@ const applyFilters = (filters) => {
     // doctor.specialty = "Cardiology"
     // specialties = [{ _id, name }]
     // ---------------------------------------------
-    if (specialtyId) {
-      console.log(specialtyId+"     ///specialtyId");
-      const spec = specialties.find(s => String(s._id) === String(specialtyId));
-      if (!spec) return false;
+    // if (specialtyId) {
+    //   console.log(specialtyId+"     ///specialtyId");
+    //   const spec = specialties.find(s => String(s._id) === String(specialtyId));
+    //   if (!spec) return false;
 
-      if (!d.specialty || d.specialty.toLowerCase() !== spec.name.toLowerCase())
-        return false;
-    }
+    //   if (!d.specialty || d.specialty.toLowerCase() !== spec.name.toLowerCase())
+    //     return false;
+    // }
 
     // ---------------------------------------------
     // 🧬 SUB-SPECIALTY (EXACT STRING MATCH)
@@ -272,19 +275,72 @@ const applyFilters = (filters) => {
     //   ) return false;
     // }
 
-    if (subSpecialtyId) {
-  const sub = subSpecialties.find(
-    s => String(s._id) === String(subSpecialtyId)
+//     if (subSpecialtyId) {
+//   const sub = subSpecialties.find(
+//     s => String(s._id) === String(subSpecialtyId)
+//   );
+
+//   if (!sub) return false;
+
+//   const target = sub.name.toLowerCase();
+
+//   if (
+//     !Array.isArray(d.specializations) ||
+//     !d.specializations.some(s =>
+//       s.toLowerCase().startsWith(target)
+//     )
+//   ) return false;
+// }
+//9.12.25
+// ---------------------------------------------
+// SPECIALTY FILTER (flexible name match)
+// ---------------------------------------------
+if (filters.specialtyId) {
+  const spec = specialties.find(
+    s => String(s._id) === String(filters.specialtyId)
   );
 
-  if (!sub) return false;
+  if (!spec) return false;
 
-  const target = sub.name.toLowerCase();
+  const specName = spec.name.trim().toLowerCase();
+  const doctorSpec = (d.specialty || "").trim().toLowerCase();
+
+  // allow partial OR exact match
+  if (!doctorSpec.includes(specName)) return false;
+}
+// ---------------------------------------------
+// SUB-SPECIALTY FILTER (exact match using name)
+// ---------------------------------------------
+// if (filters.subSpecialtyId) {
+//   console.log(subSpecialties);
+//   const selectedSub = subSpecialties.find(
+//     s => String(s._id) === String(filters.subSpecialtyId)
+//   );
+//   console.log(subSpecialties);
+//   console.log(selectedSub);
+  
+
+//   if (!selectedSub) return false;
+
+//   const subName = selectedSub.name.trim().toLowerCase();
+//   console.log(subName);
+//   if (
+//     !Array.isArray(d.specializations) ||
+//     !d.specializations.some(x =>
+//       x.trim().toLowerCase() === subName
+//     )
+//   ) return false;
+// }
+
+// SUB-SPECIALTY FILTER
+// SUB-SPECIALTY FILTER (match name directly from doctor.specializations)
+if (filters.subSpecialtyName) {
+  const target = filters.subSpecialtyName.trim().toLowerCase();
 
   if (
     !Array.isArray(d.specializations) ||
     !d.specializations.some(s =>
-      s.toLowerCase().startsWith(target)
+      s.trim().toLowerCase() === target
     )
   ) return false;
 }

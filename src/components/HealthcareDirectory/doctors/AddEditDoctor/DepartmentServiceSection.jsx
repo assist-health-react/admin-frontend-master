@@ -268,7 +268,7 @@ export default function DepartmentServiceSection({
 }) {
   const [selectedSpec, setSelectedSpec] = useState(formData.specialty || "");
   const [selectedSubs, setSelectedSubs] = useState(formData.specializations || []);
-
+  
   // Update parent formData
   useEffect(() => {
     setFormData((prev) => ({
@@ -278,6 +278,13 @@ export default function DepartmentServiceSection({
     }));
   }, [selectedSpec, selectedSubs]);
 
+  // Sync edit 9.12.25
+  useEffect(() => {
+    setSelectedSpec(formData.specialty || "");
+    setSelectedSubs(formData.specializations || []);
+  }, [formData.specialty, formData.specializations]);
+
+
   const toggleSub = (name) => {
     setSelectedSubs((prev) =>
       prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name]
@@ -285,10 +292,28 @@ export default function DepartmentServiceSection({
   };
 
   // Filter sub specs linked to selected specialty
-  const filteredSubs = subSpecialties.filter(
-    (s) => s.specialtyId === selectedSpec || s.specialtyName === selectedSpec
-  );
+  // const filteredSubs = subSpecialties.filter(
+  //   (s) => s.specialtyId === selectedSpec || s.specialtyName === selectedSpec
+  // );
+  //9.12.25
+  // console.log("selectedSpec");
+   console.log(formData.specialty);
+  
+// 1️⃣ Find specialty object based on the saved NAME
+const matchedSpecialty = specialties.find(
+  (spec) => spec.name === selectedSpec
+);
 
+// 2️⃣ Extract ID for filtering subs
+const specialtyId = matchedSpecialty?._id;
+
+// 3️⃣ Filter sub-specialties using specialtyId (ObjectId)
+const filteredSubs = subSpecialties.filter(
+  (sub) => 
+    sub.specialtyId === specialtyId ||
+    sub.specialtyId?._id === specialtyId
+)
+console.log(filteredSubs);
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mt-6">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
