@@ -263,11 +263,25 @@ const StudentAssessmentList = ({ isOpen, onClose, student }) => {
     setShowDetails(false);
   };
 
-  const handleDelete = (assessment) => {
-    setSelectedAssessment(assessment);
-    setShowDeleteConfirm(true);
-    setShowDetails(false);
-  };
+  // const handleDelete = (assessment) => {
+  //   setSelectedAssessment(assessment);
+  //   setShowDeleteConfirm(true);
+  //   setShowDetails(false);
+  // };
+    const handleDelete = async (assessmentId) => {
+      try {
+        await deleteAssessment(assessmentId);
+
+        // Remove from UI immediately
+        setAssessments(prev =>
+          prev.filter(a => a._id !== assessmentId)
+        );
+
+        setShowDetails(false);
+      } catch (error) {
+        console.error('Delete assessment failed:', error);
+      }
+    };
 
   const handleConfirmDelete = async () => {
     if (!selectedAssessment?._id) return;
@@ -315,7 +329,7 @@ const StudentAssessmentList = ({ isOpen, onClose, student }) => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
+              {/* <button
                 onClick={handleGenerateReports}
                 disabled={generatingReports || loading}
                 className={`flex items-center gap-2 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm transition-colors ${
@@ -349,7 +363,7 @@ const StudentAssessmentList = ({ isOpen, onClose, student }) => {
               >
                 <FaDownload className="w-4 h-4" />
                 Download All
-              </button>
+              </button> */}
               <button
                 onClick={onClose}
                 className="text-gray-500 hover:text-gray-700"
@@ -452,17 +466,37 @@ const StudentAssessmentList = ({ isOpen, onClose, student }) => {
 
       {/* Edit Assessment Form Modal */}
       {showEditForm && selectedAssessment && (
+        // <AddAssessmentForm
+        //   isOpen={showEditForm}
+        //   onClose={() => {
+        //     setShowEditForm(false);
+        //     setSelectedAssessment(null);
+        //   }}
+        //   student={student}
+        //   onSuccess={handleEditSuccess}
+        //   initialData={selectedAssessment}
+        //   isEditing={true}
+        // />
         <AddAssessmentForm
           isOpen={showEditForm}
+          isEditing={true}
+          initialData={selectedAssessment}
+          student={student}
           onClose={() => {
             setShowEditForm(false);
             setSelectedAssessment(null);
           }}
-          student={student}
-          onSuccess={handleEditSuccess}
-          initialData={selectedAssessment}
-          isEditing={true}
+          onSuccess={(updatedAssessment) => {
+            setAssessments(prev =>
+              prev.map(a =>
+                a._id === updatedAssessment._id ? updatedAssessment : a
+              )
+            );
+            setShowEditForm(false);
+            setSelectedAssessment(null);
+          }}
         />
+
       )}
 
       {/* Delete Confirmation Modal */}

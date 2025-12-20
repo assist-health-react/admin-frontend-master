@@ -33,10 +33,10 @@ export const routes = [
         path: 'reports',
         element: <Reports />
       },
-      {
-        path: 'inventory',
-        element: <Inventory />
-      }
+      // {
+      //   path: 'inventory',
+      //   element: <Inventory />
+      // }
     ]
   }
 ]; 

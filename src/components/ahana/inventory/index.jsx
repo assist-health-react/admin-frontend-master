@@ -299,12 +299,12 @@ const Inventory = () => {
       )}
 
       {/* Filters Modal */}
-      <InventoryFilters
+      {/* <InventoryFilters
         isOpen={showFilters}
         onClose={() => setShowFilters(false)}
         onApply={handleApplyFilters}
         initialFilters={filters}
-      />
+      /> */}
     </div>
   );
 };

@@ -31,42 +31,125 @@ const customStyles = {
 };
 
 const EditInfirmaryRecord = ({ isOpen, onClose, editData, onSuccess }) => {
+  // const [formData, setFormData] = useState({
+  //   consentFrom: '',
+  //   consentDate: '',
+  //   consentTime: '',
+  //   complaints: '',
+  //   otherComplaint: '',
+  //   details: '',
+  //   treatment: '',
+  //   tablet: null,
+  //   quantity: ''
+  // });
   const [formData, setFormData] = useState({
     consentFrom: '',
     consentDate: '',
     consentTime: '',
-    complaints: '',
-    otherComplaint: '',
-    details: '',
-    treatment: '',
-    tablet: null,
-    quantity: ''
+    complaints: []
   });
+
   
   const [tablets, setTablets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+
+  const [medicine, setMedicine] = useState(null);
+const [quantity, setQuantity] = useState("");
+useEffect(() => {
+  console.log("EDIT DATA:", editData);
+}, [editData]);
   // Initialize form with edit data
+  // useEffect(() => {
+  //   if (editData) {
+  //     setFormData({
+  //       consentFrom: editData.consentFrom || '',
+  //       consentDate: editData.date ? editData.date.split('T')[0] : '',
+  //       consentTime: editData.time || '',
+  //       complaints: editData.complaints || '',
+  //       otherComplaint: '',
+  //       details: editData.details || '',
+  //       treatment: editData.treatmentGiven || '',
+  //       tablet: editData.medicineProvided ? {
+  //         value: editData.medicineProvided.inventoryId,
+  //         label: '', // This will be updated when tablets are fetched
+  //         stock: 0
+  //       } : null,
+  //       quantity: editData.medicineProvided ? editData.medicineProvided.quantity.toString() : ''
+  //     });
+  //   }
+  // }, [editData]);
   useEffect(() => {
-    if (editData) {
-      setFormData({
-        consentFrom: editData.consentFrom || '',
-        consentDate: editData.date ? editData.date.split('T')[0] : '',
-        consentTime: editData.time || '',
-        complaints: editData.complaints || '',
-        otherComplaint: '',
-        details: editData.details || '',
-        treatment: editData.treatmentGiven || '',
-        tablet: editData.medicineProvided ? {
-          value: editData.medicineProvided.inventoryId,
-          label: '', // This will be updated when tablets are fetched
-          stock: 0
-        } : null,
-        quantity: editData.medicineProvided ? editData.medicineProvided.quantity.toString() : ''
-      });
-    }
-  }, [editData]);
+  if (!editData) return;
+
+  // -----------------------------
+  // BASE FORM DATA
+  // -----------------------------
+  setFormData({
+    consentFrom: editData.consentFrom || '',
+    consentDate: editData.date ? editData.date.split('T')[0] : '',
+    consentTime: editData.time || '',
+    complaints: editData.complaints?.length
+      ? editData.complaints.map(c => ({
+          complaint: c.complaint,
+          details: c.details || '',
+          treatment: c.treatment || '',
+          otherComplaint: ''
+        }))
+      : [{ complaint: '', details: '', treatment: '', otherComplaint: '' }]
+  });
+
+  // -----------------------------
+  // MEDICINE PROVIDED (SAFE)
+  // -----------------------------
+  if (editData.medicineProvided) {
+    const inventory = editData.medicineProvided.inventoryId;
+
+    setMedicine({
+      value: typeof inventory === 'object' ? inventory._id : inventory,
+      label: typeof inventory === 'object'
+        ? inventory.item_name
+        : 'Selected Medicine',
+      stock: typeof inventory === 'object'
+        ? inventory.current_stock ?? 0
+        : 0
+    });
+
+    setQuantity(
+      editData.medicineProvided.quantity
+        ? editData.medicineProvided.quantity.toString()
+        : ''
+    );
+  } else {
+    // Reset if no medicine exists
+    setMedicine(null);
+    setQuantity('');
+  }
+
+}, [editData]);
+
+//   useEffect(() => {
+//   if (!editData) return;
+
+//   setFormData({
+//     consentFrom: editData.consentFrom || '',
+//     consentDate: editData.date?.split('T')[0] || '',
+//     consentTime: editData.time || '',
+//     complaints: editData.complaints?.length
+//       ? editData.complaints.map(c => ({
+//           complaint: c.complaint,
+//           details: c.details || '',
+//           treatment: c.treatment || '',
+//           otherComplaint: ''
+//         }))
+//       : [{ complaint: '', details: '', treatment: '', otherComplaint: '' }]
+
+      
+//   });
+  
+// }, [editData]);
+
 
   useEffect(() => {
     const fetchTablets = async () => {
@@ -116,20 +199,36 @@ const EditInfirmaryRecord = ({ isOpen, onClose, editData, onSuccess }) => {
     try {
       setSubmitting(true);
 
+      // const recordData = {
+      //   memberId: editData.memberId,
+      //   date: formData.consentDate,
+      //   time: formData.consentTime,
+      //   consentFrom: formData.consentFrom.toLowerCase(),
+      //   complaints: formData.complaints === 'Others' ? formData.otherComplaint : formData.complaints,
+      //   details: formData.details,
+      //   treatmentGiven: formData.treatment
+      // };
       const recordData = {
-        memberId: editData.memberId,
+        consentFrom: formData.consentFrom.toLowerCase(),
         date: formData.consentDate,
         time: formData.consentTime,
-        consentFrom: formData.consentFrom.toLowerCase(),
-        complaints: formData.complaints === 'Others' ? formData.otherComplaint : formData.complaints,
-        details: formData.details,
-        treatmentGiven: formData.treatment
+        complaints: formData.complaints.map(c => ({
+          complaint: c.complaint === 'others' ? c.otherComplaint : c.complaint,
+          details: c.details,
+          treatment: c.treatment
+        }))
       };
 
-      if (formData.tablet && formData.quantity) {
+      // if (formData.tablet && formData.quantity) {
+      //   recordData.medicineProvided = {
+      //     inventoryId: formData.tablet.value,
+      //     quantity: parseInt(formData.quantity, 10)
+      //   };
+      // }
+      if (medicine && quantity) {
         recordData.medicineProvided = {
-          inventoryId: formData.tablet.value,
-          quantity: parseInt(formData.quantity, 10)
+          inventoryId: medicine.value,
+          quantity: Number(quantity)
         };
       }
 
@@ -147,6 +246,30 @@ const EditInfirmaryRecord = ({ isOpen, onClose, editData, onSuccess }) => {
       setSubmitting(false);
     }
   };
+  //  20.12.25
+  const addRow = () => {
+  setFormData(prev => ({
+    ...prev,
+    complaints: [
+      ...prev.complaints,
+      { complaint: '', details: '', treatment: '', otherComplaint: '' }
+    ]
+  }));
+};
+
+const removeRow = (index) => {
+  if (formData.complaints.length === 1) return;
+  setFormData(prev => ({
+    ...prev,
+    complaints: prev.complaints.filter((_, i) => i !== index)
+  }));
+};
+
+const updateRow = (index, field, value) => {
+  const updated = [...formData.complaints];
+  updated[index][field] = value;
+  setFormData({ ...formData, complaints: updated });
+};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -200,11 +323,11 @@ const EditInfirmaryRecord = ({ isOpen, onClose, editData, onSuccess }) => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
-                    <option value="">Select Consent From</option>
-                    <option value="Parent">Parent</option>
-                    <option value="Guardian">Guardian</option>
-                    <option value="Teacher">Teacher</option>
-                    <option value="School Authority">School Authority</option>
+                   <option value="parent">Parent</option>
+                    <option value="guardian">Guardian</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="school authority">School Authority</option>
+
                   </select>
                 </div>
                 <div>
@@ -233,7 +356,7 @@ const EditInfirmaryRecord = ({ isOpen, onClose, editData, onSuccess }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              {/* <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Complaints *
@@ -288,9 +411,103 @@ const EditInfirmaryRecord = ({ isOpen, onClose, editData, onSuccess }) => {
                     required
                   />
                 </div>
+              </div> */}
+              {/* Complaints Section */}
+              <div className="bg-gray-50 rounded-lg p-4 border mt-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-md font-semibold text-gray-800">
+                    Complaints
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={addRow}
+                    className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    Add
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {formData.complaints.map((row, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-12 gap-3 items-end border p-3 rounded-md bg-white"
+                    >
+                      {/* Complaint */}
+                      <div className="col-span-4">
+                        <label className="label">Complaint</label>
+                        <select
+                          value={row.complaint}
+                          onChange={e =>
+                            updateRow(index, 'complaint', e.target.value)
+                          }
+                          className="input"
+                          required
+                        >
+                          <option value="">Select</option>
+                          <option value="fever">Fever</option>
+                          <option value="headache">Headache</option>
+                          <option value="injury">Injury</option>
+                          <option value="others">Others</option>
+                        </select>
+
+                        {row.complaint === 'others' && (
+                          <input
+                            type="text"
+                            placeholder="Specify other complaint"
+                            value={row.otherComplaint}
+                            onChange={e =>
+                              updateRow(index, 'otherComplaint', e.target.value)
+                            }
+                            className="input mt-2"
+                            required
+                          />
+                        )}
+                      </div>
+
+                      {/* Details */}
+                      <div className="col-span-4">
+                        <label className="label">Details</label>
+                        <textarea
+                          rows={2}
+                          value={row.details}
+                          onChange={e =>
+                            updateRow(index, 'details', e.target.value)
+                          }
+                          className="input"
+                        />
+                      </div>
+
+                      {/* Treatment */}
+                      <div className="col-span-3">
+                        <label className="label">Treatment</label>
+                        <textarea
+                          rows={2}
+                          value={row.treatment}
+                          onChange={e =>
+                            updateRow(index, 'treatment', e.target.value)
+                          }
+                          className="input"
+                        />
+                      </div>
+
+                      {/* Remove */}
+                      <div className="col-span-1 flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() => removeRow(index)}
+                          className="h-9 w-9 bg-red-500 text-white rounded-md hover:bg-red-600"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mt-4">
+
+              {/* <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Tablets
@@ -326,7 +543,7 @@ const EditInfirmaryRecord = ({ isOpen, onClose, editData, onSuccess }) => {
                     placeholder="Enter quantity"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 

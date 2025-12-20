@@ -368,60 +368,120 @@ const AddEditMember = ({ onClose, onSubmit, initialData = null, isEditing = fals
     return errors;
   };
 
-  const handlePincodeChange = async (e) => {
-    const pincode = e.target.value;
+  // const handlePincodeChange = async (e) => {
+  //   const pincode = e.target.value;
     
-    // Update pincode in form data
-    setFormData(prev => ({
+  //   // Update pincode in form data
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     address: prev.address.map(address => ({
+  //       ...address,
+  //       pinCode: pincode
+  //     }))
+  //   }));
+
+  //   // Only fetch location details if pincode is 6 digits
+  //   if (pincode.length === 6) {
+  //     setIsLoadingRegions(true);
+  //     try {
+  //       const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+  //       const data = await response.json();
+        
+  //       if (data[0].Status === 'Success') {
+  //         const postOffices = data[0].PostOffice;
+          
+  //         // Set region options
+  //         const options = postOffices.map(po => ({
+  //           value: po.Name,
+  //           label: po.Name
+  //         }));
+  //         setRegionOptions(options);
+          
+  //         // Auto-fill state only
+  //         if (postOffices.length > 0 && !isEditing) {
+  //           setFormData(prev => ({
+  //             ...prev,
+  //             address: prev.address.map(address => ({
+  //               ...address,
+  //               state: postOffices[0].State,
+  //               country: 'India'
+  //             }))
+  //           }));
+  //         }
+  //       } else {
+  //         showSnackbar('Invalid PIN code. Please check and try again.', 'error');
+  //         setRegionOptions([]);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching location details:', error);
+  //       showSnackbar('Error fetching location details. Please try again.', 'error');
+  //     } finally {
+  //       setIsLoadingRegions(false);
+  //     }
+  //   } else {
+  //     setRegionOptions([]);
+  //   }
+  // };
+const handlePincodeChange = async (e) => {
+  const pincode = e.target.value;
+
+  setFormData(prev => {
+    const addressArray = Array.isArray(prev.address)
+      ? prev.address
+      : [prev.address];
+
+    return {
       ...prev,
-      address: prev.address.map(address => ({
+      address: addressArray.map(address => ({
         ...address,
         pinCode: pincode
       }))
-    }));
+    };
+  });
 
-    // Only fetch location details if pincode is 6 digits
-    if (pincode.length === 6) {
-      setIsLoadingRegions(true);
-      try {
-        const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
-        const data = await response.json();
-        
-        if (data[0].Status === 'Success') {
-          const postOffices = data[0].PostOffice;
-          
-          // Set region options
-          const options = postOffices.map(po => ({
+  if (pincode.length === 6) {
+    setIsLoadingRegions(true);
+    try {
+      const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      const data = await response.json();
+
+      if (data[0]?.Status === 'Success') {
+        const postOffices = data[0].PostOffice;
+
+        setRegionOptions(
+          postOffices.map(po => ({
             value: po.Name,
             label: po.Name
-          }));
-          setRegionOptions(options);
-          
-          // Auto-fill state only
-          if (postOffices.length > 0 && !isEditing) {
-            setFormData(prev => ({
-              ...prev,
-              address: prev.address.map(address => ({
-                ...address,
-                state: postOffices[0].State,
-                country: 'India'
-              }))
-            }));
-          }
-        } else {
-          showSnackbar('Invalid PIN code. Please check and try again.', 'error');
-          setRegionOptions([]);
-        }
-      } catch (error) {
-        console.error('Error fetching location details:', error);
-        showSnackbar('Error fetching location details. Please try again.', 'error');
-      } finally {
-        setIsLoadingRegions(false);
+          }))
+        );
+
+        setFormData(prev => {
+          const addressArray = Array.isArray(prev.address)
+            ? prev.address
+            : [prev.address];
+
+          return {
+            ...prev,
+            address: addressArray.map(addr => ({
+              ...addr,
+              state: postOffices[0].State,
+              country: 'India'
+            }))
+          };
+        });
+      } else {
+        setRegionOptions([]);
+        showSnackbar('Invalid PIN code', 'error');
       }
-    } else {
-      setRegionOptions([]);
+    } catch (err) {
+      showSnackbar('Error fetching location details', 'error');
+    } finally {
+      setIsLoadingRegions(false);
     }
-  };
+  } else {
+    setRegionOptions([]);
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

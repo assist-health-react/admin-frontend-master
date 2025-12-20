@@ -11,9 +11,9 @@ import BulkDownload from './BulkDownload';
 import BulkAssessmentForm from './BulkAssessmentForm';
 
 const AssessmentReport = () => {
-  console.log('AssessmentReport component rendered');
+  //console.log('AssessmentReport component rendered');
   const { schoolId, schoolData, isLoading: isLoadingSchool } = useOutletContext();
-  console.log('Context received:', { schoolId, schoolData, isLoadingSchool });
+ // console.log('Context received:', { schoolId, schoolData, isLoadingSchool });
   
   const [showFilters, setShowFilters] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -32,6 +32,14 @@ const AssessmentReport = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [shouldFetch, setShouldFetch] = useState(false);
   const isInitialMount = useRef(true);
+
+
+//18.12.25
+const [refreshKey, setRefreshKey] = useState(0);
+const handleAddAssessment = (student) => {
+  setSelectedStudent(student);
+  setShowAddForm(true);
+};
 
   // Extract grades and sections from schoolData
   const availableGrades = useMemo(() => {
@@ -132,13 +140,15 @@ const AssessmentReport = () => {
             <FaUpload />
             Bulk Upload
           </button>
-          <button
+          {/* <button
             onClick={() => setShowBulkDownload(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
           >
             <FaDownload />
             Bulk Download
-          </button>
+          </button> */}
+        
+
         </div>
 
         {/* Active Filters Display */}
@@ -164,7 +174,7 @@ const AssessmentReport = () => {
 
       {/* Assessment List */}
       <div className="flex-1 overflow-hidden">
-        <AssessmentList
+        {/* <AssessmentList
           onViewDetails={handleViewDetails}
           loading={loading}
           searchTerm={searchTerm}
@@ -172,6 +182,17 @@ const AssessmentReport = () => {
           schoolId={schoolId}
           shouldFetch={shouldFetch}
           onFetchComplete={handleFetchComplete}
+        /> */}
+
+        <AssessmentList
+          key={refreshKey}
+          schoolId={schoolId}
+          filters={filters}
+          searchTerm={searchTerm}
+          shouldFetch={shouldFetch}
+          onFetchComplete={handleFetchComplete}
+          onViewDetails={handleViewDetails}
+          onAddAssessment={handleAddAssessment}
         />
       </div>
 
@@ -186,14 +207,28 @@ const AssessmentReport = () => {
       />
 
       {/* Add Assessment Form Modal */}
-      <AddAssessmentForm
+      {/* <AddAssessmentForm
         isOpen={showAddForm}
         onClose={() => {
           setShowAddForm(false);
           setSelectedStudent(null);
         }}
         student={selectedStudent}
-      />
+      /> */}
+      <AddAssessmentForm
+          isOpen={showAddForm}
+          student={selectedStudent}
+          isEditing={false}
+          onClose={() => {
+            setShowAddForm(false);
+            setSelectedStudent(null);
+          }}
+          onSuccess={() => {
+            setShowAddForm(false);
+            setSelectedStudent(null);
+            setRefreshKey(prev => prev + 1); // 🔄 refresh list
+          }}
+        />
 
       {/* Student Assessment List */}
       <StudentAssessmentList

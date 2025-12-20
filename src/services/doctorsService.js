@@ -2,10 +2,10 @@
 // 17.10.25
 // }; 
 import axios from "axios";
-
+import api from './api';
 const base = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/v1` : '/api/v1';
 
-const api = axios.create({ baseURL: `${base}/doctors`, headers: { 'Content-Type': 'application/json' } });
+//const api = axios.create({ baseURL: `${base}/doctors`, headers: { 'Content-Type': 'application/json' } });
 // 17.10.25
 const BASE = axios.create({ baseURL: `${base}/healthcaredoctors`, headers: { 'Content-Type': 'application/json' } });
 //const BASE = `${base}/healthcaredoctors`;

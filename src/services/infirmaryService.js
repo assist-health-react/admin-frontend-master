@@ -66,10 +66,22 @@ export const deleteInfirmaryRecord = async (id) => {
   }
 };
 
+export const getStudentInfirmaryHistory = async (studentId) => {
+  try {
+    const response = await api.get(
+      `/api/v1/infirmary/student/${studentId}`
+    );
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const infirmaryService = {
   getAllInfirmaryRecords,
   getInfirmaryRecordById,
   createInfirmaryRecord,
   updateInfirmaryRecord,
-  deleteInfirmaryRecord
+  deleteInfirmaryRecord,
+  getStudentInfirmaryHistory
 }; 

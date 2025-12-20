@@ -36,20 +36,46 @@ const ViewAssessmentDetails = ({ isOpen, onClose, assessment, onEdit, onDelete }
     day: 'numeric'
   });
 
+  console.log(assessment)
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">Assessment Details</h2>
+            <p className="text-sm text-gray-500">
+              Assessment ID: {assessment._id}
+            </p>
             <p className="text-sm text-gray-500 mt-1">Date: {assessmentDate}</p>
           </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-500 p-1.5 hover:bg-gray-50 rounded-full transition-colors"
-            >
-              <IoMdClose className="h-6 w-6" />
-            </button>
+            <div className="flex items-center gap-2">
+                {/* EDIT BUTTON */}
+                <button
+                  onClick={handleEdit}
+                  className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-1 text-sm"
+                >
+                  <FaEdit size={14} />
+                  Edit
+                </button>
+
+                {/* DELETE BUTTON */}
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-1 text-sm"
+                >
+                  <FaTrash size={14} />
+                  Delete
+                </button>
+
+                {/* CLOSE BUTTON */}
+                <button
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-gray-600 p-1.5 hover:bg-gray-100 rounded-full"
+                >
+                  <IoMdClose className="h-6 w-6" />
+                </button>
+              </div>
         </div>
         
         {/* Delete Confirmation Modal */}
@@ -69,7 +95,7 @@ const ViewAssessmentDetails = ({ isOpen, onClose, assessment, onEdit, onDelete }
                 </button>
                 <button
                   onClick={() => {
-                    onDelete(assessment);
+                    onDelete(assessment._id);
                     setShowDeleteConfirm(false);
                     onClose();
                   }}
@@ -85,26 +111,65 @@ const ViewAssessmentDetails = ({ isOpen, onClose, assessment, onEdit, onDelete }
         <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Student & School Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Student Information</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Name</label>
-                <div className="mt-1 text-sm text-gray-900">{assessment.studentId?.name}</div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Email</label>
-                <div className="mt-1 text-sm text-gray-900">{assessment.studentId?.email}</div>
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-500">Assessment Type</label>
-                <div className="mt-1 text-sm text-gray-900">{assessment.name}</div>
-              </div>
-            </div>
+            <h3 className="text-lg font-semibold mb-4">Student Information</h3>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Name</p>
+                      <p className="font-medium">
+                        {assessment.studentId?.name || 'N/A'}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Email</p>
+                      <p className="font-medium">
+                        {assessment.studentId?.email || 'N/A'}
+                      </p>
+                    </div>
+
+                    {/* <div>
+                      <p className="text-sm text-gray-500">Assessment Type</p>
+                      <p className="font-medium">
+                        {assessment.assessmentType || 'Routine'}
+                      </p>
+                    </div> */}
+                  </div>
+          </div>
+        <div className="space-y-4"></div>
+       
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold mb-4"></h3>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Grade</p>
+                      <p className="font-medium">
+                        {assessment.studentId?.studentDetails?.grade || 'N/A'}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Section</p>
+                      <p className="font-medium">
+                        {assessment.studentId?.studentDetails?.section || 'N/A'}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Date of Birth</p>
+                      <p className="font-medium">
+                        {assessment.studentId?.dob
+                          ? new Date(assessment.studentId.dob).toLocaleDateString()
+                          : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
           </div>
 
-          {/* School Information */}
+             {/* School Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">School Information</h3>
+            <h3 className="text-lg font-medium text-gray-900"> </h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-500">School Name</label>
@@ -116,7 +181,7 @@ const ViewAssessmentDetails = ({ isOpen, onClose, assessment, onEdit, onDelete }
           {/* Physical Measurements */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900">Physical Measurements</h3>
-            <div className="grid grid-cols-2 gap-4">
+            {/* <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-500">Height</label>
                 <div className="mt-1 text-sm text-gray-900">{assessment.heightInFt} ft</div>
@@ -129,12 +194,38 @@ const ViewAssessmentDetails = ({ isOpen, onClose, assessment, onEdit, onDelete }
                 <label className="block text-sm font-medium text-gray-500">BMI</label>
                 <div className="mt-1 text-sm text-gray-900">{assessment.bmi}</div>
               </div>
-            </div>
+            </div> */}
+             <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Height</p>
+                  <p className="font-medium">
+                    {assessment.heightInCm
+                      ? `${assessment.heightInCm} cm`
+                      : assessment.heightInFt
+                      ? `${assessment.heightInFt} ft`
+                      : 'N/A'}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">Weight</p>
+                  <p className="font-medium">
+                    {assessment.weightInKg ? `${assessment.weightInKg} kg` : 'N/A'}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">BMI</p>
+                  <p className="font-medium">
+                    {assessment.bmi ?? 'N/A'}
+                  </p>
+                </div>
+              </div>
           </div>
 
           {/* Vital Signs */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Vital Signs</h3>
+            {/* <h3 className="text-lg font-medium text-gray-900">Vital Signs</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-500">Temperature</label>
@@ -154,7 +245,46 @@ const ViewAssessmentDetails = ({ isOpen, onClose, assessment, onEdit, onDelete }
                 <label className="block text-sm font-medium text-gray-500">Blood Pressure</label>
                 <div className="mt-1 text-sm text-gray-900">{assessment.bp} mmHg</div>
               </div>
-            </div>
+            </div> */}
+             <h3 className="text-lg font-semibold mb-4">Vital Signs</h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Temperature</p>
+                  <p className="font-medium">
+                    {assessment.temperatureInCelsius
+                      ? `${assessment.temperatureInCelsius} °C`
+                      : 'N/A'}
+                    {assessment.temperatureInFahrenheit &&
+                      ` / ${assessment.temperatureInFahrenheit} °F`}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">Pulse Rate</p>
+                  <p className="font-medium">
+                    {assessment.pulseRateBpm
+                      ? `${assessment.pulseRateBpm} bpm`
+                      : 'N/A'}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">SpO₂</p>
+                  <p className="font-medium">
+                    {assessment.spo2Percentage
+                      ? `${assessment.spo2Percentage}%`
+                      : 'N/A'}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">Blood Pressure</p>
+                  <p className="font-medium">
+                    {assessment.bp || 'N/A'}
+                  </p>
+                </div>
+              </div>
           </div>
 
           {/* Vision Assessment */}

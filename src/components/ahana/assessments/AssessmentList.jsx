@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { membersService } from '../../../services/membersService';
-import { FaEye } from 'react-icons/fa';
+//import { membersService } from '../../../services/membersService';
+import { studentsService } from '../../../services/studentsService';
+import { FaEye ,FaPlus } from 'react-icons/fa';
 
-const AssessmentList = ({ onViewDetails, loading: parentLoading, searchTerm, filters, schoolId, shouldFetch, onFetchComplete }) => {
+const AssessmentList = ({ onViewDetails, onAddAssessment, loading: parentLoading, searchTerm, filters, schoolId, shouldFetch, onFetchComplete }) => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -44,7 +45,8 @@ const AssessmentList = ({ onViewDetails, loading: parentLoading, searchTerm, fil
       
       console.log('Sending params to API:', params);
 
-      const response = await membersService.getMembers(params);
+      const response = await studentsService.getStudents(params);
+      //const response = await membersService.getMembers(params);
       
       if (response.status === 'success' && response.data) {
         const formattedStudents = response.data.map(student => ({
@@ -156,7 +158,20 @@ const AssessmentList = ({ onViewDetails, loading: parentLoading, searchTerm, fil
                 >
                   <FaEye />
                 </button>
+
+                
+                  {/* Add */}
+                  <button
+                    onClick={() => onAddAssessment(student)}
+                    className="text-green-600 hover:text-green-800"
+                    title="Add Assessment"
+                  >
+                    <FaPlus />
+                  </button>
+
               </div>
+
+              
             </div>
             ))}
             {loading && currentPage > 1 && (

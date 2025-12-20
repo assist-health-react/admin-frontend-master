@@ -7,12 +7,12 @@ import api from '../../../services/api';
 import { useOutletContext } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
-const AddStudentForm = ({ isOpen, onClose, initialData = null, onSuccess }) => {
+const AddFamilyMemberModal = ({ isOpen, onClose, initialData = null, onSuccess ,parentStudent}) => {
   const { schoolId, schoolData, isLoading: isLoadingSchool } = useOutletContext();
   
   useEffect(() => {
     if (isOpen) {
-      console.log('AddStudentForm Data:', {
+      console.log('AddFamilyMemberModal Data:', {
         schoolId,
         schoolData,
         grades: schoolData?.grades,
@@ -91,52 +91,79 @@ const AddStudentForm = ({ isOpen, onClose, initialData = null, onSuccess }) => {
     setRegionOptions([]);
     onClose();
   };
+const splitMobileNumber = (phone = '') => {
+  if (!phone.startsWith('+')) {
+    return { countryCode: '+91', number: phone };
+  }
+
+  const countryCode = phone.slice(0, phone.length - 10);
+  const number = phone.slice(-10);
+
+  return { countryCode, number };
+};
+
+
+  useEffect(() => {
+  if (parentStudent) {
+
+   
+    const { countryCode, number } = splitMobileNumber(parentStudent.mobile);
+    console.log("number"+number);
+    setFormData(prev => ({
+      ...prev,
+      email: parentStudent.email || '',
+      mobile: number,
+      class: parentStudent.studentDetails?.grade || '',
+      section: parentStudent.studentDetails?.section || ''
+    }));
+  }
+}, [parentStudent]);
 
   // Effect to populate form data when initialData changes
-  useEffect(() => {
-    if (initialData) {
-      // Get the primary address (first address in the array)
-      const primaryAddress = Array.isArray(initialData.address) && initialData.address.length > 0 
-        ? initialData.address[0] 
-        : null;
+//   useEffect(() => {
+//     if (initialData) {
+//       // Get the primary address (first address in the array)
+//       const primaryAddress = Array.isArray(initialData.address) && initialData.address.length > 0 
+//         ? initialData.address[0] 
+//         : null;
 
-      setFormData({
-        name: initialData.name || '',
-        dateOfBirth: initialData.dob ? new Date(initialData.dob).toISOString().split('T')[0] : '',
-        gender: initialData.gender || '',
-        mobile: initialData.phone?.replace('+91', '') || '',
-        email: initialData.email || '',
-        class: initialData.studentDetails?.grade || '',
-        section: initialData.studentDetails?.section || '',
-        guardianName: initialData.emergencyContact?.name || '',
-        guardianMobile: initialData.emergencyContact?.phone?.replace('+91', '') || '',
-        guardianRelation: initialData.emergencyContact?.relation || '',
-        bloodGroup: initialData.bloodGroup || '',
-        heightInFt: initialData.heightInFt || '',
-        weightInKg: initialData.weightInKg || '',
-        profilePic: initialData.profilePic || '',
-        address: {
-          description: primaryAddress?.description || '',
-          pinCode: primaryAddress?.pinCode || '',
-          region: primaryAddress?.region || '',
-          landmark: primaryAddress?.landmark || '',
-          state: primaryAddress?.state || '',
-          country: primaryAddress?.country || 'India',
-          location: primaryAddress?.location || {
-            latitude: null,
-            longitude: null
-          }
-        }
-      });
+//       setFormData({
+//         name: initialData.name || '',
+//         dateOfBirth: initialData.dob ? new Date(initialData.dob).toISOString().split('T')[0] : '',
+//         gender: initialData.gender || '',
+//         mobile: initialData.phone?.replace('+91', '') || '',
+//         email: initialData.email || '',
+//         class: initialData.studentDetails?.grade || '',
+//         section: initialData.studentDetails?.section || '',
+//         guardianName: initialData.emergencyContact?.name || '',
+//         guardianMobile: initialData.emergencyContact?.phone?.replace('+91', '') || '',
+//         guardianRelation: initialData.emergencyContact?.relation || '',
+//         bloodGroup: initialData.bloodGroup || '',
+//         heightInFt: initialData.heightInFt || '',
+//         weightInKg: initialData.weightInKg || '',
+//         profilePic: initialData.profilePic || '',
+//         address: {
+//           description: primaryAddress?.description || '',
+//           pinCode: primaryAddress?.pinCode || '',
+//           region: primaryAddress?.region || '',
+//           landmark: primaryAddress?.landmark || '',
+//           state: primaryAddress?.state || '',
+//           country: primaryAddress?.country || 'India',
+//           location: primaryAddress?.location || {
+//             latitude: null,
+//             longitude: null
+//           }
+//         }
+//       });
 
-      // If there's a pincode, fetch the region options
-      if (primaryAddress?.pinCode) {
-        handlePincodeChange({ target: { value: primaryAddress.pinCode } });
-      }
-    } else {
-      setFormData(initialFormState);
-    }
-  }, [initialData]);
+//       // If there's a pincode, fetch the region options
+//       if (primaryAddress?.pinCode) {
+//         handlePincodeChange({ target: { value: primaryAddress.pinCode } });
+//       }
+//     } else {
+//       setFormData(initialFormState);
+//     }
+//   }, [initialData]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -156,19 +183,19 @@ const AddStudentForm = ({ isOpen, onClose, initialData = null, onSuccess }) => {
       newErrors.gender = 'Gender is required';
     }
 
-    // Mobile validation
-    if (!formData.mobile?.trim()) {
-      newErrors.mobile = 'Mobile number is required';
-    } else if (!/^[0-9]{10}$/.test(formData.mobile.replace(/\D/g, ''))) {
-      newErrors.mobile = 'Please enter a valid 10-digit mobile number';
-    }
+    // // Mobile validation
+    // if (!formData.mobile?.trim()) {
+    //   newErrors.mobile = 'Mobile number is required';
+    // } else if (!/^[0-9]{10}$/.test(formData.mobile.replace(/\D/g, ''))) {
+    //   newErrors.mobile = 'Please enter a valid 10-digit mobile number';
+    // }
 
-    // Email validation
-    if (!formData.email?.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
+    // // Email validation
+    // if (!formData.email?.trim()) {
+    //   newErrors.email = 'Email is required';
+    // } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    //   newErrors.email = 'Please enter a valid email address';
+    // }
 
     // School validation
     if (!formData.class) {
@@ -266,124 +293,59 @@ const AddStudentForm = ({ isOpen, onClose, initialData = null, onSuccess }) => {
     };
   }, []);
 
+  /* =========================
+     SUBMIT (SUB-PROFILE)
+  ========================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-
-    if (!schoolData?._id) {
-      toast.error('School information is missing');
-      return;
-    }
 
     setIsSubmitting(true);
     try {
-      // Format phone numbers to ensure exactly 10 digits
-      const formattedPhone = formData.mobile.replace(/\D/g, '').slice(0, 10);
-      const formattedGuardianPhone = formData.guardianMobile ? formData.guardianMobile.replace(/\D/g, '').slice(0, 10) : '';
-
-      // Start with required fields
-      const studentData = {
+      const payload = {
+        primaryStudentId:parentStudent.id,
         isStudent: true,
-        name: formData.name.trim(),
-        phone: formattedPhone,
+        isSubprofile: true,
+        name: formData.name,
         dob: formData.dateOfBirth,
-        gender: formData.gender.toLowerCase(),
+        gender: formData.gender,
         bloodGroup: formData.bloodGroup,
-        employmentStatus: "student",
+
+        // 🔒 SAME CONTACT AS PARENT
+        phone: parentStudent.mobile,
+        email: parentStudent.email,
+
+        employmentStatus: 'student',
+
         studentDetails: {
-          schoolId: schoolData.schoolId, 
+          schoolId: schoolData.schoolId,
           grade: formData.class,
           section: formData.section
-        }
+        },
+
+        emergencyContact: {
+          name: formData.guardianName,
+          phone: formData.guardianMobile,
+          relation: formData.guardianRelation
+        },
+
+        address: [formData.address]
       };
 
-      // Only add email if it has a value
-      if (formData.email?.trim()) {
-        studentData.email = formData.email.trim();
-      }
-
-      // Only add height if it has a valid value
-      if (formData.heightInFt && !isNaN(formData.heightInFt) && parseFloat(formData.heightInFt) > 0) {
-        studentData.heightInFt = parseFloat(formData.heightInFt);
-      }
-
-      // Only add weight if it has a valid value
-      if (formData.weightInKg && !isNaN(formData.weightInKg) && parseFloat(formData.weightInKg) > 0) {
-        studentData.weightInKg = parseFloat(formData.weightInKg);
-      }
-
-      // Only add address if any required address field is filled
-      if (formData.address.description?.trim() || formData.address.pinCode?.trim()) {
-        const addressData = {
-          description: formData.address.description?.trim() || '',
-          pinCode: formData.address.pinCode?.trim() || '',
-          country: 'India',
-          location: { latitude: null, longitude: null }
-        };
-
-        // Only add optional address fields if they have values
-        if (formData.address.region?.trim()) {
-          addressData.region = formData.address.region.trim();
-        }
-        if (formData.address.landmark?.trim()) {
-          addressData.landmark = formData.address.landmark.trim();
-        }
-        if (formData.address.state?.trim()) {
-          addressData.state = formData.address.state.trim();
-        }
-
-        studentData.address = addressData;
-      }
-
-      // Only add guardian/emergency contact if any required field is filled
-      if (formData.guardianName?.trim() || formattedGuardianPhone) {
-        const emergencyContact = {};
-        
-        if (formData.guardianName?.trim()) {
-          emergencyContact.name = formData.guardianName.trim();
-        }
-        if (formattedGuardianPhone) {
-          emergencyContact.phone = formattedGuardianPhone;
-        }
-        if (formData.guardianRelation) {
-          emergencyContact.relation = formData.guardianRelation;
-        }
-
-        if (Object.keys(emergencyContact).length > 0) {
-          studentData.emergencyContact = emergencyContact;
-        }
-      }
-
-      // Only add profile pic if it has a value
-      if (formData.profilePic?.trim()) {
-        studentData.profilePic = formData.profilePic;
-      }
-
-      let response;
-      if (initialData?._id) {
-        // Update existing student
-        response = await studentsService.updateStudent(initialData._id, studentData);
-      } else {
-        // Create new student
-        response = await studentsService.createStudent(studentData);
-      }
+    //  console.log(parentStudent);
       
-      if (response.status === 'success') {
-        alert(initialData ? 'Student updated successfully!' : 'Student added successfully!');
-        onClose();
-        if (onSuccess) onSuccess();
-      } else {
-        throw new Error('Failed to save student');
-      }
-    } catch (error) {
-      console.error('Error saving student:', error);
-      toast.error(error.message || 'Error saving student. Please try again.');
+
+      await studentsService.addSubStudent(parentStudent.id, payload);
+
+      toast.success('Family member added');
+      onSuccess?.();
+      onClose();
+    } catch (err) {
+      toast.error(err.message || 'Failed to add family member');
     } finally {
       setIsSubmitting(false);
     }
   };
-
   // Update mobile number validation to ensure exactly 10 digits
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -507,7 +469,7 @@ const AddStudentForm = ({ isOpen, onClose, initialData = null, onSuccess }) => {
         {/* Form Header */}
         <div className="px-6 py-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
           <h2 className="text-xl font-semibold text-gray-800">
-            {initialData ? 'Edit Student' : 'Add New Student'}
+            Add Sub Profile
           </h2>
           <button
             onClick={handleClose}
@@ -651,7 +613,7 @@ const AddStudentForm = ({ isOpen, onClose, initialData = null, onSuccess }) => {
                   type="tel"
                   name="mobile"
                   value={formData.mobile}
-                  onChange={handleChange}
+                  readOnly
                   className={`w-full px-4 py-2.5 rounded-lg border ${
                     errors.mobile ? 'border-red-500' : 'border-gray-300'
                   } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
@@ -670,7 +632,7 @@ const AddStudentForm = ({ isOpen, onClose, initialData = null, onSuccess }) => {
                   type="tel"
                   name="alternateMobile"
                   value={formData.alternateMobile}
-                  onChange={handleChange}
+                  readOnly
                   className={`w-full px-4 py-2.5 rounded-lg border ${
                     errors.alternateMobile ? 'border-red-500' : 'border-gray-300'
                   } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
@@ -689,7 +651,7 @@ const AddStudentForm = ({ isOpen, onClose, initialData = null, onSuccess }) => {
                   type="email"
                   name="email"
                   value={formData.email}
-                  onChange={handleChange}
+                  readOnly
                   className={`w-full px-4 py-2.5 rounded-lg border ${
                     errors.email ? 'border-red-500' : 'border-gray-300'
                   } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
@@ -1055,4 +1017,7 @@ const AddStudentForm = ({ isOpen, onClose, initialData = null, onSuccess }) => {
   );
 };
 
-export default AddStudentForm; 
+export default AddFamilyMemberModal; 
+
+
+//AddFamilyMemberModal

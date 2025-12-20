@@ -1,15 +1,20 @@
 import { useState } from 'react';
 import { FiEdit2, FiEye } from 'react-icons/fi';
+import { FaPlus,FaPen ,FaEye } from 'react-icons/fa';
 import boyStudentIcon from '../../../assets/icons/boy-student.png';
 import girlStudentIcon from '../../../assets/icons/girl-student.png';
+import AddFamilyMemberModal from './AddFamilyMemberModal';
 
-const StudentList = ({ 
-  students = [], 
+const StudentList = ({
+  students = [],
   loading,
   onViewDetails,
-  onSelectStudent,
-  startIndex = 0
+  onAddFamilyMember,
+  startIndex = 0,
+    onViewSubProfiles // ✅ NEW
 }) => {
+
+
   console.log('StudentList rendered with students:', students);
 
   const getProfileImage = (student) => {
@@ -45,6 +50,9 @@ const StudentList = ({
           <thead className="bg-gray-50">
             <tr>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                S.No
+              </th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Profile
               </th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -74,11 +82,14 @@ const StudentList = ({
             {students.length > 0 ? (
               students.map((student, index) => (
                 <tr key={student.id} className="hover:bg-gray-50">
+                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {startIndex + index + 1}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     {getProfileImage(student)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {startIndex + index + 1}
+                    {student.studentId}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {student.name}
@@ -95,7 +106,7 @@ const StudentList = ({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {student.mobile}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       onClick={() => onViewDetails(student)}
                       className="text-blue-600 hover:text-blue-900 mr-3"
@@ -103,7 +114,40 @@ const StudentList = ({
                     >
                       <FiEye className="h-5 w-5" />
                     </button>
-                  </td>
+                  </td> */}
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-3">
+
+                {/* VIEW */}
+                <button
+                  onClick={() => onViewDetails(student)}
+                  className="text-blue-600 hover:text-blue-900"
+                  title="View Details"
+                >
+                  <FaPen className="h-5 w-5" />
+                </button>
+
+                {/* ADD FAMILY MEMBER */}
+                {!student.isSubprofile && (
+                  <button
+                    onClick={() => onAddFamilyMember(student)}
+                    className="text-green-600 hover:text-green-900"
+                    title="Add Family Member"
+                  >
+                    <FaPlus className="h-5 w-5" />
+                  </button>
+                )}
+
+                <button
+                onClick={() => onViewSubProfiles(student)}
+                className="text-purple-600"
+                title="View Sub Profiles"
+              >
+                <FaEye  className="h-5 w-5" />
+              </button>
+             
+
+
+              </td>
                 </tr>
               ))
             ) : (

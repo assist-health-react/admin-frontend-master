@@ -25,11 +25,11 @@ const tabs = [
     label: 'Infirmary Reports',
     icon: FaChartBar
   },
-  {
-    id: 'inventory',
-    label: 'Inventory',
-    icon: FaBoxes
-  }
+  // {
+  //   id: 'inventory',
+  //   label: 'Inventory',
+  //   icon: FaBoxes
+  // }
 ];
 
 const SchoolView = () => {

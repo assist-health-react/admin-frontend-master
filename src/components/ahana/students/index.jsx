@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { FaSearch, FaFilter, FaUserPlus, FaEye, FaUpload } from 'react-icons/fa';
-import { membersService } from '../../../services/membersService';
+import { studentsService } from '../../../services/studentsService';
 import { getSchoolById } from '../../../services/schoolsService';
 import StudentList from './StudentList';
 import StudentFilters from './StudentFilters';
@@ -9,6 +9,8 @@ import AddAssessmentForm from './AddAssessmentForm';
 import ViewStudentDetails from './ViewStudentDetails';
 import StudentBulkUploadGuide from './StudentBulkUploadGuide';
 import { useOutletContext } from 'react-router-dom';
+import AddFamilyMemberModal from './AddFamilyMemberModal';
+import ViewSubProfilesModal  from './ViewSubProfilesModal';
 
 const AllStudents = () => {
   const { schoolId, schoolData, isLoading: isLoadingSchool } = useOutletContext() || {};
@@ -45,7 +47,9 @@ const AllStudents = () => {
   const itemsPerPage = 10;
   const [shouldFetch, setShouldFetch] = useState(false);
   const isInitialMount = useRef(true);
-
+const [showAddFamilyMember, setShowAddFamilyMember] = useState(false);
+const [selectedParentStudent, setSelectedParentStudent] = useState(null);
+const [showSubProfiles, setShowSubProfiles] = useState(false);
   // Extract grades and sections from schoolData
   const availableGrades = useMemo(() => {
     if (!schoolData?.grades) return [];
@@ -93,7 +97,7 @@ const AllStudents = () => {
       
       console.log('Sending params to API:', params);
 
-      const response = await membersService.getMembers(params);
+      const response = await studentsService.getStudents(params);
 
       console.log('API Response received:', response);
 
@@ -209,7 +213,7 @@ const AllStudents = () => {
   const handleEditStudent = async (student) => {
     try {
       // Fetch complete student details using the same API as view
-      const response = await membersService.getMemberById(student.id);
+      const response = await studentsService.getStudentById(student.id);
       if (response.status === 'success' && response.data) {
         setSelectedStudent(response.data);
         setShowAddStudentForm(true);
@@ -298,22 +302,67 @@ const AllStudents = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
         ) : (
+         
           <StudentList
             students={filteredStudents}
             loading={loading}
             startIndex={(currentPage - 1) * (pagination?.limit || itemsPerPage)}
+
             onViewDetails={(student) => {
               console.log('View details clicked for student:', student);
               handleViewStudent(student);
             }}
+
             onSelectStudent={(student) => {
               console.log('Add assessment clicked for student:', student);
               setSelectedStudent(student);
               setShowAssessmentForm(true);
             }}
+
+            /* ⭐ ADD THIS */
+            onAddFamilyMember={(student) => {
+              console.log('Add family member clicked:', student);
+              setSelectedParentStudent(student);
+              setShowAddFamilyMember(true);
+            }}
+
+             /* ✅ ADD THIS */
+            onViewSubProfiles={(student) => {
+              setSelectedParentStudent(student);
+              setShowSubProfiles(true);
+            }}
           />
+
+
         )}
       </div>
+      {showSubProfiles && selectedParentStudent && (
+        <ViewSubProfilesModal
+          isOpen={showSubProfiles}
+          parentStudent={selectedParentStudent}
+          onClose={() => {
+            setShowSubProfiles(false);
+            setSelectedParentStudent(null);
+          }}
+          onEdit={(subStudent) => {
+            setShowSubProfiles(false);
+            setSelectedStudent(subStudent);
+            setShowAddStudentForm(true);
+          }}
+        />
+      )}
+
+      {showAddFamilyMember && selectedParentStudent && (
+          <AddFamilyMemberModal
+            isOpen={showAddFamilyMember}
+            onClose={() => setShowAddFamilyMember(false)}
+            parentStudent={selectedParentStudent}
+            onSuccess={() => {
+              setShowAddFamilyMember(false);
+            }}
+          />
+        )}
+
 
       {showAddStudentForm && (
         <AddStudentForm
@@ -348,7 +397,7 @@ const AllStudents = () => {
           }}
           onDelete={async (studentId) => {
             try {
-              await membersService.deleteMember(studentId);
+              await studentsService.deleteStudent(studentId);
               setShowViewDetails(false);
               setSelectedStudent(null);
               // Refresh the students list

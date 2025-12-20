@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaTimes, FaEdit, FaTrash, FaSpinner } from 'react-icons/fa';
-import { membersService } from '../../../services/membersService';
+import { studentsService } from '../../../services/studentsService';
 
 const ViewStudentDetails = ({ isOpen, onClose, studentId, onEdit, onDelete }) => {
   const [loading, setLoading] = useState(true);
@@ -14,7 +14,7 @@ const ViewStudentDetails = ({ isOpen, onClose, studentId, onEdit, onDelete }) =>
       try {
         setLoading(true);
         setError(null);
-        const response = await membersService.getMemberById(studentId);
+        const response = await studentsService.getStudentById(studentId);
         
         if (response.status === 'success' && response.data) {
           const studentData = {

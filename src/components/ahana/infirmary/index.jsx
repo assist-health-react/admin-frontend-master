@@ -3,8 +3,11 @@ import { FaSearch, FaFilter, FaTimes, FaEye } from 'react-icons/fa';
 import InfirmaryFilters from './InfirmaryFilters';
 import StudentInfirmaryList from './StudentInfirmaryList';
 import { useOutletContext } from 'react-router-dom';
-import { membersService } from '../../../services/membersService';
-
+//import { membersService } from '../../../services/membersService';
+import { studentsService } from '../../../services/studentsService';
+import AddInfirmaryRecord from "./AddInfirmaryRecord";
+import EditInfirmaryRecord from "./EditInfirmaryRecord";
+import { getInfirmaryRecordById } from "../../../services/infirmaryService";
 const Infirmary = () => {
   const { schoolId, schoolData } = useOutletContext() || {};
   const [showFilters, setShowFilters] = useState(false);
@@ -35,11 +38,34 @@ const Infirmary = () => {
   const [students, setStudents] = useState([]);
   const itemsPerPage = 20;
   const tableRef = useRef(null);
+  
+
+const [showAddRecord, setShowAddRecord] = useState(false);
+const [selectedStudentForAdd, setSelectedStudentForAdd] = useState(null);
+// 20.12.25
+const [editData, setEditData] = useState(null);
+const handleEditInfirmary = async (recordId) => {
+  try {
+    const res = await getInfirmaryRecordById(recordId);
+
+    // 1️⃣ open edit modal
+    setEditData(res.data);
+
+    // 2️⃣ close add modal AFTER
+    setShowAddRecord(false);
+    setSelectedStudentForAdd(null);
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to open edit record");
+  }
+};
 
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await membersService.getMembers({
+     // const response = await membersService.getMembers({
+      const response = await studentsService.getStudents({
         page: currentPage,
         limit: itemsPerPage,
         schoolId: schoolId || undefined,
@@ -256,7 +282,7 @@ const Infirmary = () => {
                     {student.email}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <div className="flex justify-center">
+                    {/* <div className="flex justify-center">
                       <button
                         onClick={() => handleViewStudent(student)}
                         className="text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50 transition-colors"
@@ -264,7 +290,27 @@ const Infirmary = () => {
                       >
                         <FaEye className="w-4 h-4" />
                       </button>
-                    </div>
+                    </div> */}
+                    <div className="flex gap-2 justify-center">
+                        {/* <button
+                          onClick={() => handleViewStudent(student)}
+                          className="text-green-600 hover:text-green-900"
+                          title="View Records"
+                        >
+                          <FaEye />
+                        </button> */}
+
+                        <button
+                          onClick={() => {
+                            setSelectedStudentForAdd(student);
+                            setShowAddRecord(true);
+                          }}
+                          className="text-blue-600 hover:text-blue-900 font-bold text-lg"
+                          title="Add Infirmary Record"
+                        >
+                          +
+                        </button>
+                      </div>
                   </td>
                 </tr>
               ))}
@@ -289,6 +335,35 @@ const Infirmary = () => {
           )}
         </div>
       </div>
+
+      {showAddRecord && selectedStudentForAdd && (
+        <AddInfirmaryRecord
+          isOpen={showAddRecord}
+          onClose={() => {
+            setShowAddRecord(false);
+            setSelectedStudentForAdd(null);
+          }}
+           onEdit={handleEditInfirmary}   // ✅ IMPORTANT
+            student={selectedStudentForAdd}
+          schoolId={schoolData._id}   // ✅ ObjectId
+          nurseId={schoolData?.assignedNurseId} // or logged-in nurse id
+          onSuccess={() => {
+            // refresh student list or do nothing
+          }}
+        />
+      )}
+
+      {editData && (
+        <EditInfirmaryRecord
+          isOpen={true}
+          editData={editData}
+          onClose={() => setEditData(null)}
+          onSuccess={() => {
+            setEditData(null);
+          }}
+        />
+      )}
+
 
       {/* Filters Modal */}
       <InfirmaryFilters
