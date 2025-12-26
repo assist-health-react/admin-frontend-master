@@ -1,22 +1,36 @@
-name: Deploy Admin Backend
+# 
+name: Deploy Admin Frontend (Production)
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: appleboy/ssh-action@v1
+    steps:
+      - name: Deploy admin frontend on EC2
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            rsync -av --delete $GITHUB_WORKSPACE/ ~/assist-health/admin-frontend-master/
-            cd ~/assist-health
+            set -e
+
+            echo "➡️ Going to admin frontend directory"
+            cd /home/ec2-user/assist-health/admin-frontend-master
+
+            echo "➡️ Pull latest code"
+            git pull origin main
+
+            echo "➡️ Build admin frontend image"
+            cd /home/ec2-user/assist-health
             docker compose -f docker-compose.admin.yml build admin_frontend
+
+            echo "➡️ Restart admin frontend container"
             docker compose -f docker-compose.admin.yml up -d admin_frontend
+
+            echo "✅ Admin frontend deployment completed"
