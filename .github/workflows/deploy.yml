@@ -1,4 +1,3 @@
-# 
 name: Deploy Admin Frontend
 
 on:
@@ -18,9 +17,18 @@ jobs:
           command_timeout: 60m
           script: |
             set -e
+
+            echo "📂 Go to admin frontend repo"
             cd /home/ec2-user/assist-health/admin-frontend-master
+
+            echo "🔒 Protect .env from git"
+            git rm --cached .env || true
+            git update-index --assume-unchanged .env || true
+
+            echo "⬇ Pull latest code"
             git pull origin main
 
+            echo "🐳 Build & restart admin frontend"
             cd /home/ec2-user/assist-health
             docker compose -f docker-compose.admin.yml build admin_frontend
             docker compose -f docker-compose.admin.yml up -d admin_frontend
