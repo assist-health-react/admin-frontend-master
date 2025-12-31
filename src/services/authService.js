@@ -6,7 +6,9 @@ export const login = async (email, password) => {
       email,
       password
     });
-
+    console.log(api);
+    console.log(response);
+    
     // The response is already processed by the interceptor
     // No need to check response.data as the interceptor returns the data directly
     return response;
