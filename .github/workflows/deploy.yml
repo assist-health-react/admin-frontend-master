@@ -1,36 +1,26 @@
 # 
-name: Deploy Admin Frontend (Production)
+name: Deploy Admin Frontend
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Deploy admin frontend on EC2
-        uses: appleboy/ssh-action@v1
+      - uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
+          timeout: 60m
+          command_timeout: 60m
           script: |
             set -e
-
-            echo "➡️ Going to admin frontend directory"
             cd /home/ec2-user/assist-health/admin-frontend-master
-
-            echo "➡️ Pull latest code"
             git pull origin main
 
-            echo "➡️ Build admin frontend image"
             cd /home/ec2-user/assist-health
             docker compose -f docker-compose.admin.yml build admin_frontend
-
-            echo "➡️ Restart admin frontend container"
             docker compose -f docker-compose.admin.yml up -d admin_frontend
-
-            echo "✅ Admin frontend deployment completed"

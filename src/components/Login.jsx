@@ -172,7 +172,7 @@ const Login = ({ onLogin }) => {
             />
           </div>
           <p className="mt-2 text-sm text-gray-600">
-            Sign in to your admin account
+            Sign in to your admin account -- TEst
           </p>
         </div>
 
