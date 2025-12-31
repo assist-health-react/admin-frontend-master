@@ -7,8 +7,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: appleboy/ssh-action@v1
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
@@ -21,15 +23,17 @@ jobs:
             echo "📂 Go to admin frontend repo"
             cd /home/ec2-user/assist-health/admin-frontend-master
 
-            echo "🔒 Protect .env from git"
-            [ -f .env ] && git rm --cached .env || true
-            [ -f .env ] && git update-index --assume-unchanged .env || true
+            echo "🧹 Force EC2 to match GitHub (no conflicts)"
+            git reset --hard
+            git clean -fd
 
-
-            echo "⬇ Pull latest code"
+            echo "⬇ Pull latest code from GitHub"
             git pull origin main
 
-            echo "🐳 Build & restart admin frontend"
+            echo "🐳 Build & restart admin frontend container"
             cd /home/ec2-user/assist-health
-            docker compose -f docker-compose.admin.yml build admin_frontend
+            docker compose -f docker-compose.admin.yml down admin_frontend
+            docker compose -f docker-compose.admin.yml build --no-cache admin_frontend
             docker compose -f docker-compose.admin.yml up -d admin_frontend
+
+            echo "✅ Admin frontend deployed successfully"
