@@ -6,4 +6,3 @@ node_modules
 .idea
 README.md
 dist
-nginx.conf
