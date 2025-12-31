@@ -22,8 +22,9 @@ jobs:
             cd /home/ec2-user/assist-health/admin-frontend-master
 
             echo "🔒 Protect .env from git"
-            git rm --cached .env || true
-            git update-index --assume-unchanged .env || true
+            [ -f .env ] && git rm --cached .env || true
+            [ -f .env ] && git update-index --assume-unchanged .env || true
+
 
             echo "⬇ Pull latest code"
             git pull origin main
