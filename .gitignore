@@ -31,4 +31,3 @@ dist-ssr
 /src/components/HealthcareDirectory/doctors/AddEditDoctor/index copy.jsx
 /src/components/HealthcareDirectory/hospitals/AddEditHospital/index copy.jsx
 .env
-nginx.conf
