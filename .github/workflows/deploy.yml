@@ -1,39 +1,113 @@
-name: Deploy Admin Frontend
+# name: Deploy Admin Frontend
+
+# on:
+#   push:
+#     branches: [main]
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Deploy to EC2
+#         uses: appleboy/ssh-action@v1
+#         with:
+#           host: ${{ secrets.EC2_HOST }}
+#           username: ${{ secrets.EC2_USER }}
+#           key: ${{ secrets.EC2_KEY }}
+#           timeout: 60m
+#           command_timeout: 60m
+#           script: |
+#             set -e
+
+#             echo "📂 Go to admin frontend repo"
+#             cd /home/ec2-user/assist-health/admin-frontend-master
+
+#             echo "🧹 Force EC2 to match GitHub (no conflicts)"
+#             git reset --hard
+#             git clean -fd
+
+#             echo "⬇ Pull latest code from GitHub"
+#             git pull origin main
+
+#             echo "🐳 Build & restart admin frontend container"
+#             cd /home/ec2-user/assist-health
+#             docker compose -f docker-compose.admin.yml down admin_frontend
+#             docker compose -f docker-compose.admin.yml build --no-cache admin_frontend
+#             docker compose -f docker-compose.admin.yml up -d admin_frontend
+
+#             echo "✅ Admin frontend deployed successfully"
+
+
+name: Deploy Admin Frontend (FAST)
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  deploy:
+  build:
+    name: Build Frontend
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to EC2
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: admin-frontend-master
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: admin-frontend-master
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-frontend-dist
+          path: admin-frontend-master/dist
+
+  deploy:
+    name: Deploy to EC2
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: admin-frontend-dist
+          path: dist
+
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          timeout: 60m
-          command_timeout: 60m
+          timeout: 30m
           script: |
             set -e
 
-            echo "📂 Go to admin frontend repo"
-            cd /home/ec2-user/assist-health/admin-frontend-master
+            echo "📂 Go to infra folder"
+            cd /home/ec2-user/assist-health
 
-            echo "🧹 Force EC2 to match GitHub (no conflicts)"
-            git reset --hard
-            git clean -fd
-
-            echo "⬇ Pull latest code from GitHub"
+            echo "⬇ Pull latest infra code"
             git pull origin main
 
-            echo "🐳 Build & restart admin frontend container"
-            cd /home/ec2-user/assist-health
-            docker compose -f docker-compose.admin.yml down admin_frontend
-            docker compose -f docker-compose.admin.yml build --no-cache admin_frontend
+            echo "📁 Copy new frontend build"
+            rm -rf admin-frontend-master/dist
+            mkdir -p admin-frontend-master/dist
+            cp -r ~/dist/* admin-frontend-master/dist/
+
+            echo "🔁 Restart frontend container (NO BUILD)"
             docker compose -f docker-compose.admin.yml up -d admin_frontend
 
-            echo "✅ Admin frontend deployed successfully"
