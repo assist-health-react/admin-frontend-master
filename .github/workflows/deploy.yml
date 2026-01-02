@@ -38,7 +38,6 @@
 
 #             echo "✅ Admin frontend deployed successfully"
 
-
 name: Deploy Admin Frontend (FAST)
 
 on:
@@ -63,17 +62,15 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: admin-frontend-master
 
       - name: Build frontend
         run: npm run build
-        working-directory: admin-frontend-master
 
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
           name: admin-frontend-dist
-          path: admin-frontend-master/dist
+          path: dist
 
   deploy:
     name: Deploy to EC2
@@ -97,17 +94,17 @@ jobs:
           script: |
             set -e
 
-            echo "📂 Go to infra folder"
-            cd /home/ec2-user/assist-health
+            echo "📂 Go to project root"
+            cd /home/ec2-user/assist-health/admin-frontend-master
 
-            echo "⬇ Pull latest infra code"
+            echo "⬇ Pull latest code"
             git pull origin main
 
-            echo "📁 Copy new frontend build"
-            rm -rf admin-frontend-master/dist
-            mkdir -p admin-frontend-master/dist
-            cp -r ~/dist/* admin-frontend-master/dist/
+            echo "📁 Replace dist folder"
+            rm -rf dist
+            mkdir dist
+            cp -r ~/dist/* dist/
 
             echo "🔁 Restart frontend container (NO BUILD)"
+            cd /home/ec2-user/assist-health
             docker compose -f docker-compose.admin.yml up -d admin_frontend
-
