@@ -80,4 +80,4 @@ jobs:
 
             echo "🐳 Build & restart containers"
             docker compose -f docker-compose.admin.yml build admin_frontend
-            docker compose -f docker-compose.admin.yml up -d admin_frontend
+            docker compose -f docker-compose.admin.yml restart admin_frontend
