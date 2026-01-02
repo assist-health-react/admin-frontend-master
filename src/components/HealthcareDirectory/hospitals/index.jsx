@@ -38,6 +38,8 @@ export default function ShowHospital() {
     try {
       setLoading(true);
       const res = await healthcareService.getHospitals();
+      console.log(res);
+       console.log(Array.isArray(res.data));
       if (res.status === "success") {
         setHospitals(res.data || []);
       } else {
@@ -53,7 +55,9 @@ export default function ShowHospital() {
 
   useEffect(() => {
     fetchHospitals();
-  }, [fetchHospitals]);
+    console.log("TEST");
+    
+  }, []);
 
   // Apply filters to hospitals (client-side)
 useEffect(() => {

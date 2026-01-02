@@ -113,52 +113,141 @@
 //     }
 //   }
 // }; 
-import axios from "axios";
+//OLD
+// import axios from "axios";
+// import api from './api';
+// // const api = axios.create({
+// //   baseURL: `${import.meta.env.VITE_API_URL}/api/v1/healthcare`,
+// //   headers: { "Content-Type": "application/json" }
+// // });
+// // const api2 = axios.create({
+// //   baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
+// //   headers: { "Content-Type": "application/json" }
+// // });
+// // ✅ COMMON PREFIX (ONLY HERE)
+// const HEALTHCARE_BASE = `${api}/api/v1/healthcare`;
+// //${HEALTHCARE_BASE}
+// export const healthcareService = {
+//   getDepartments: () => api.get(`/departments`).then(res => res.data),
+//   getServicesByDepartment: (deptId) => api.get(`/services/${deptId}`).then(res => res.data),
+//   getSubServicesByService: (serviceId) => api.get(`/subservices/${serviceId}`).then(res => res.data),
 
-const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/v1/healthcare`,
-  headers: { "Content-Type": "application/json" }
-});
-const api2 = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
-  headers: { "Content-Type": "application/json" }
-});
+//   createHospital: (data) => api.post(`${HEALTHCARE_BASE}/hospitals`, data).then(res => res.data),
+//   updateHospital: (id, data) => api.put(`${HEALTHCARE_BASE}/hospitals/${id}`, data).then(res => res.data),
+//   deleteHospital: (id) => api.delete(`${HEALTHCARE_BASE}/hospitals/${id}`).then(res => res.data),
+//   getHospitals: () => api.get("/hospitals").then(res => res.data),
+//   getHospitalById: (id) => api.get(`${HEALTHCARE_BASE}/hospitals/${id}`).then(res => res.data),
+
+//   //25.11.25
+//   // Diagnostics Metadata
+// getDiagnosticServices: () => api2.get("/diagnostics-meta/services").then(res => res.data),
+// getDiagnosticCities: () => api2.get("/diagnostics-meta/cities").then(res => res.data),
+
+// // Diagnostics CRUD
+// getDiagnostics: () => api2.get(`${HEALTHCARE_BASE}/diagnostics`).then(res => res.data),
+// getDiagnosticsById: (id) => api2.get(`${HEALTHCARE_BASE}/diagnostics/${id}`).then(res => res.data),
+// createDiagnostics: (data) => api2.post(`${HEALTHCARE_BASE}/diagnostics`, data).then(res => res.data),
+// updateDiagnostics: (id, data) => api2.put(`${HEALTHCARE_BASE}/diagnostics/${id}`, data).then(res => res.data),
+// deleteDiagnostics: (id) => api2.delete(`${HEALTHCARE_BASE}/diagnostics/${id}`).then(res => res.data),
+
+// // Physiotherapy CRUD
+// getPhysiotherapy: () => api2.get(`${HEALTHCARE_BASE}/physiotherapy`).then(res => res.data),
+// getPhysiotherapyById: (id) => api2.get(`${HEALTHCARE_BASE}/physiotherapy/${id}`).then(res => res.data),
+// createPhysiotherapy: (data) => api2.post(`${HEALTHCARE_BASE}/physiotherapy`, data).then(res => res.data),
+// updatePhysiotherapy: (id, data) => api2.put(`${HEALTHCARE_BASE}/physiotherapy/${id}`, data).then(res => res.data),
+// deletePhysiotherapy: (id) => api2.delete(`${HEALTHCARE_BASE}/physiotherapy/${id}`).then(res => res.data),
+
+//  // Homecare CRUD
+//   getHomecare: () => api2.get(`${HEALTHCARE_BASE}/homecare`).then(res => res.data),
+//   getHomecareById: (id) => api2.get(`${HEALTHCARE_BASE}/homecare/${id}`).then(res => res.data),
+//   createHomecare: (data) => api2.post(`${HEALTHCARE_BASE}/homecare`, data).then(res => res.data),
+//   updateHomecare: (id, data) => api2.put(`${HEALTHCARE_BASE}/homecare/${id}`, data).then(res => res.data),
+//   deleteHomecare: (id) => api2.delete(`${HEALTHCARE_BASE}/homecare/${id}`).then(res => res.data),
+
+// };
+import api from "./api";
+
+// ✅ STRING PREFIX ONLY (NOT api object)
+const HEALTHCARE_BASE = "/api/v1/healthcare";
 
 export const healthcareService = {
-  getDepartments: () => api.get("/departments").then(res => res.data),
-  getServicesByDepartment: (deptId) => api.get(`/services/${deptId}`).then(res => res.data),
-  getSubServicesByService: (serviceId) => api.get(`/subservices/${serviceId}`).then(res => res.data),
+  // Departments
+  getDepartments: () =>
+    api.get(`${HEALTHCARE_BASE}/departments`).then(res => res),
 
-  createHospital: (data) => api.post("/hospitals", data).then(res => res.data),
-  updateHospital: (id, data) => api.put(`/hospitals/${id}`, data).then(res => res.data),
-  deleteHospital: (id) => api.delete(`/hospitals/${id}`).then(res => res.data),
-  getHospitals: () => api.get("/hospitals").then(res => res.data),
-  getHospitalById: (id) => api.get(`/hospitals/${id}`).then(res => res.data),
+  getServicesByDepartment: (deptId) =>
+    api.get(`${HEALTHCARE_BASE}/services/${deptId}`).then(res => res),
 
-  //25.11.25
-  // Diagnostics Metadata
-getDiagnosticServices: () => api2.get("/diagnostics-meta/services").then(res => res.data),
-getDiagnosticCities: () => api2.get("/diagnostics-meta/cities").then(res => res.data),
+  getSubServicesByService: (serviceId) =>
+    api.get(`${HEALTHCARE_BASE}/subservices/${serviceId}`).then(res => res),
 
-// Diagnostics CRUD
-getDiagnostics: () => api2.get("/diagnostics").then(res => res.data),
-getDiagnosticsById: (id) => api2.get(`/diagnostics/${id}`).then(res => res.data),
-createDiagnostics: (data) => api2.post("/diagnostics", data).then(res => res.data),
-updateDiagnostics: (id, data) => api2.put(`/diagnostics/${id}`, data).then(res => res.data),
-deleteDiagnostics: (id) => api2.delete(`/diagnostics/${id}`).then(res => res.data),
+  // Hospitals
+  getHospitals: () =>
+    api.get(`${HEALTHCARE_BASE}/hospitals`).then(res => res),
 
-// Physiotherapy CRUD
-getPhysiotherapy: () => api2.get("/physiotherapy").then(res => res.data),
-getPhysiotherapyById: (id) => api2.get(`/physiotherapy/${id}`).then(res => res.data),
-createPhysiotherapy: (data) => api2.post("/physiotherapy", data).then(res => res.data),
-updatePhysiotherapy: (id, data) => api2.put(`/physiotherapy/${id}`, data).then(res => res.data),
-deletePhysiotherapy: (id) => api2.delete(`/physiotherapy/${id}`).then(res => res.data),
+  getHospitalById: (id) =>
+    api.get(`${HEALTHCARE_BASE}/hospitals/${id}`).then(res => res),
 
- // Homecare CRUD
-  getHomecare: () => api2.get("/homecare").then(res => res.data),
-  getHomecareById: (id) => api2.get(`/homecare/${id}`).then(res => res.data),
-  createHomecare: (data) => api2.post("/homecare", data).then(res => res.data),
-  updateHomecare: (id, data) => api2.put(`/homecare/${id}`, data).then(res => res.data),
-  deleteHomecare: (id) => api2.delete(`/homecare/${id}`).then(res => res.data),
+  createHospital: (data) =>
+    api.post(`${HEALTHCARE_BASE}/hospitals`, data).then(res => res),
 
+  updateHospital: (id, data) =>
+    api.put(`${HEALTHCARE_BASE}/hospitals/${id}`, data).then(res => res),
+
+  deleteHospital: (id) =>
+    api.delete(`${HEALTHCARE_BASE}/hospitals/${id}`).then(res => res),
+
+  // Diagnostics
+  getDiagnosticServices: () =>
+    api.get("/api/v1/diagnostics-meta/services").then(res => res),
+
+  getDiagnosticCities: () =>
+    api.get("/api/v1/diagnostics-meta/cities").then(res => res),
+
+  getDiagnostics: () =>
+    api.get("/api/v1/diagnostics").then(res => res),
+
+  getDiagnosticsById: (id) =>
+    api.get(`/api/v1/diagnostics/${id}`).then(res => res),
+
+  createDiagnostics: (data) =>
+    api.post("/api/v1/diagnostics", data).then(res => res),
+
+  updateDiagnostics: (id, data) =>
+    api.put(`/api/v1/diagnostics/${id}`, data).then(res => res),
+
+  deleteDiagnostics: (id) =>
+    api.delete(`/api/v1/diagnostics/${id}`).then(res => res),
+
+  // Physiotherapy
+  getPhysiotherapy: () =>
+    api.get("/api/v1/physiotherapy").then(res => res),
+
+  getPhysiotherapyById: (id) =>
+    api.get(`/api/v1/physiotherapy/${id}`).then(res => res),
+
+  createPhysiotherapy: (data) =>
+    api.post("/api/v1/physiotherapy", data).then(res => res),
+
+  updatePhysiotherapy: (id, data) =>
+    api.put(`/api/v1/physiotherapy/${id}`, data).then(res => res),
+
+  deletePhysiotherapy: (id) =>
+    api.delete(`/api/v1/physiotherapy/${id}`).then(res => res),
+
+  // Homecare
+  getHomecare: () =>
+    api.get("/api/v1/homecare").then(res => res),
+
+  getHomecareById: (id) =>
+    api.get(`/api/v1/homecare/${id}`).then(res => res),
+
+  createHomecare: (data) =>
+    api.post("/api/v1/homecare", data).then(res => res),
+
+  updateHomecare: (id, data) =>
+    api.put(`/api/v1/homecare/${id}`, data).then(res => res),
+
+  deleteHomecare: (id) =>
+    api.delete(`/api/v1/homecare/${id}`).then(res => res),
 };
