@@ -81,5 +81,5 @@ jobs:
             echo "🐳 Build & restart admin frontend"
             cd /home/ec2-user/assist-health
             docker compose -f docker-compose.admin.yml build admin_frontend
-            docker compose -f docker-compose.admin.yml restart admin_frontend
+            docker compose -f docker-compose.admin.yml up -d --build admin_frontend
 
