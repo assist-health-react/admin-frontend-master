@@ -72,12 +72,14 @@ jobs:
           script: |
             set -e
 
-            echo "📂 Go to project root"
+            echo "📂 Go to admin frontend repo"
             cd /home/ec2-user/assist-health/admin-frontend-master
 
             echo "⬇ Pull latest code"
             git pull origin main
 
-            echo "🐳 Build & restart containers"
+            echo "🐳 Build & restart admin frontend"
+            cd /home/ec2-user/assist-health
             docker compose -f docker-compose.admin.yml build admin_frontend
             docker compose -f docker-compose.admin.yml restart admin_frontend
+
