@@ -73,7 +73,7 @@ jobs:
             set -e
 
             echo "📂 Go to project root"
-            cd /home/ec2-user/assist-health
+            cd /home/ec2-user/assist-health/admin-frontend-master
 
             echo "⬇ Pull latest code"
             git pull origin main
