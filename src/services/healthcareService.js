@@ -237,7 +237,7 @@ export const healthcareService = {
 
   // Homecare
   getHomecare: () =>
-    api.get("/api/v1/homecare").then(res => res),//
+    api.get("/api/v1/homecare").then(res => res),////
 
   getHomecareById: (id) =>
     api.get(`/api/v1/homecare/${id}`).then(res => res),
