@@ -30,4 +30,4 @@ dist-ssr
 /src/components/HealthcareDirectory/backup/17.11.25/
 /src/components/HealthcareDirectory/doctors/AddEditDoctor/index copy.jsx
 /src/components/HealthcareDirectory/hospitals/AddEditHospital/index copy.jsx
-.env*
+
