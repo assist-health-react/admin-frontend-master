@@ -228,7 +228,7 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      {/* <h2 className="text-2xl font-semibold mb-6">Dashboard Overview</h2>
+      <h2 className="text-2xl font-semibold mb-6">Dashboard Overview</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((item) => (
           <div
@@ -266,7 +266,7 @@ const Dashboard = () => {
             </div>
           </div>
         ))}
-      </div> */}
+      </div> 
 
       {/* Calendar Section */}
       {/* <div className="bg-white rounded-xl shadow-lg overflow-hidden">

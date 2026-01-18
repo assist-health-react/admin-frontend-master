@@ -43,6 +43,19 @@ const Members = () => {
   const [activeFilters, setActiveFilters] = useState({});
   const [selectedMemberForView, setSelectedMemberForView] = useState(null);
 
+
+   // Pagination
+  // Pagination 15.1.2026
+const limit = 20;
+
+// FRONTEND pagination slice
+const paginatedMembers = useMemo(() => {
+  const start = (page - 1) * limit;
+  const end = start + limit;
+  return members.slice(start, end);
+}, [members, page, limit]);
+
+
   // Single effect to handle both initial load and subsequent updates
   useEffect(() => {
     const fetchData = async () => {
@@ -67,58 +80,104 @@ const Members = () => {
 
   // Remove the search effect since we'll only search on button click
 
-  const fetchMembers = async (pageNum = 1, shouldAppend = false, clearSearch = false) => {
-    try {
-      if (loading) return; // Prevent concurrent requests
+//   const fetchMembers = async (pageNum = 1, clearSearch = false) => {
+
+//  // const fetchMembers = async (pageNum = 1, shouldAppend = false, clearSearch = false) => {
+//     try {
+//       if (loading) return; // Prevent concurrent requests
       
-      console.log('Members: Fetching members, page:', pageNum);
-      setLoading(true);
-      setError(null);
+//       console.log('Members: Fetching members, page:', pageNum);
+//       setLoading(true);
+//       setError(null);
 
-      const queryParams = {
-        isStudent: false,
-        type: { $ne: 'STUDENT' },
-        page: pageNum,
-        limit: 100,
-        sortBy: 'createdAt',
-        sortOrder: 'asc',
-        includeSubprofileCount: true,
-        ...(clearSearch ? {} : {
-          ...activeFilters,
-          ...(searchTerm && { search: searchTerm })
-        })
-      };
+//       const queryParams = {
+//         isStudent: false,
+//         type: { $ne: 'STUDENT' },
+//         page: pageNum,
+//         limit: limit,
+//         sortBy: 'createdAt',
+//         sortOrder: 'asc',
+//         includeSubprofileCount: true,
+//         ...(clearSearch ? {} : {
+//           ...activeFilters,
+//           ...(searchTerm && { search: searchTerm })
+//         })
+//       };
 
-      console.log('Members: Fetch params:', queryParams);
-      const response = await membersService.getMembers(queryParams);
+//       console.log('Members: Fetch params:', queryParams);
+//       const response = await membersService.getMembers(queryParams);
 
-      if (response?.status === 'success') {
-        const newMembers = response.data || [];
-        console.log('Members: Fetch successful, count:', newMembers.length);
+//       if (response?.status === 'success') {
+//         const newMembers = response.data || [];
+//         console.log('Members: Fetch successful, count:', newMembers.length);
         
-        setHasMore(response.pagination?.page < response.pagination?.pages);
-        setMembers(prev => shouldAppend ? [...prev, ...newMembers] : newMembers);
-        setTotalMembers(response.pagination?.total || 0);
-        setPage(pageNum);
-      } else {
-        throw new Error('Failed to fetch members');
-      }
-    } catch (error) {
-      console.error('Members: Error fetching list:', error);
-      setError(error.message || 'Failed to fetch members');
-      showSnackbar(error.message || 'Failed to fetch members', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+//        // setHasMore(response.pagination?.page < response.pagination?.pages);
+//       //  setMembers(prev => shouldAppend ? [...prev, ...newMembers] : newMembers);
+//       setMembers(newMembers);
 
+//         setTotalMembers(response.pagination?.total || 0);
+//         setPage(pageNum);
+//       } else {
+//         throw new Error('Failed to fetch members');
+//       }
+//     } catch (error) {
+//       console.error('Members: Error fetching list:', error);
+//       setError(error.message || 'Failed to fetch members');
+//       showSnackbar(error.message || 'Failed to fetch members', 'error');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+
+const fetchMembers = async (clearSearch = false) => {
+  try {
+    if (loading) return;
+
+    setLoading(true);
+    setError(null);
+
+    const queryParams = {
+      isStudent: false,
+      type: { $ne: 'STUDENT' },
+      sortBy: 'createdAt',
+      sortOrder: 'asc',
+      includeSubprofileCount: true,
+      ...(clearSearch ? {} : {
+        ...activeFilters,
+        ...(searchTerm && { search: searchTerm })
+      })
+    };
+
+    const response = await membersService.getMembers(queryParams);
+
+    if (response?.status === 'success') {
+      setMembers(response.data || []);           // FULL DATA
+      setTotalMembers(response.data.length);     // TOTAL COUNT
+      setPage(1);                                // RESET PAGE
+    } else {
+      throw new Error('Failed to fetch members');
+    }
+  } catch (error) {
+    setError(error.message || 'Failed to fetch members');
+    showSnackbar(error.message || 'Failed to fetch members', 'error');
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // const handleSearch = () => {
+  //   setPage(1);
+  //   // Only search if there's a search term
+  //   if (searchTerm.trim()) {
+  //     fetchMembers(1, false);
+  //   }
+  // };
   const handleSearch = () => {
     setPage(1);
-    // Only search if there's a search term
-    if (searchTerm.trim()) {
-      fetchMembers(1, false);
-    }
+    fetchMembers();
   };
+
 
   const loadMore = () => {
     if (hasMore && !loading) {
@@ -134,9 +193,15 @@ const Members = () => {
     }
   };
 
+  // const handleApplyFilters = (filters) => {
+  //   setActiveFilters(filters);
+  //   setPage(1);
+  // };
+
   const handleApplyFilters = (filters) => {
     setActiveFilters(filters);
     setPage(1);
+    fetchMembers();
   };
 
   const handleCheckboxChange = (memberId) => {
@@ -502,21 +567,48 @@ const Members = () => {
 
       <div className="flex-1 overflow-hidden">
         <MembersList
-          members={members}
+          members={paginatedMembers}
+          //members={members}
           selectedMembers={selectedMembers}
           handleCheckboxChange={handleCheckboxChange}
           handleSelectAll={handleSelectAll}
           onMemberSelect={handleMemberSelect}
           setShowSubProfiles={handleSubProfilesView}
           loading={loading}
-          hasMore={hasMore}
-          onLoadMore={loadMore}
-          onRefresh={async () => {
-            console.log('Index: Refreshing members list');
-            await fetchMembers(1, false);
-          }}
+          // hasMore={hasMore}
+          // onLoadMore={loadMore}
+          // onRefresh={async () => {
+          //   console.log('Index: Refreshing members list');
+          //   await fetchMembers(1, false);
+          // }}
+          onRefresh={fetchMembers} // 🔥 FINAL LINK
         />
       </div>
+      {/* Pagination */}
+   {totalMembers > 0 && (
+  <div className="flex justify-end items-center gap-2 p-4">
+    <button
+      disabled={page === 1}
+      onClick={() => setPage(page - 1)}
+      className="px-3 py-1 border rounded disabled:opacity-50"
+    >
+      Prev
+    </button>
+
+    <span className="text-sm">
+      Page {page} of {Math.ceil(totalMembers / limit)}
+    </span>
+
+    <button
+      disabled={page >= Math.ceil(totalMembers / limit)}
+      onClick={() => setPage(page + 1)}
+      className="px-3 py-1 border rounded disabled:opacity-50"
+    >
+      Next
+    </button>
+  </div>
+)}
+
 
       {error && (
         <div className="p-4 bg-red-50 text-red-600">

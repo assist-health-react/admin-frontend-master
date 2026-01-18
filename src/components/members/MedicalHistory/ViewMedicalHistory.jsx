@@ -17,11 +17,12 @@ import { toast } from 'react-hot-toast';
 const ViewMedicalHistory = ({ member, onClose, initialData, onDelete }) => {
   const [selectedSections, setSelectedSections] = useState({
     memberDetails: true,
+    medicalHistory: false,//2026
     primaryCarePhysician: false,
     treatingDoctors: false,
     followUps: false,
     previousConditions: false,
-    previousMedicalConditions: false,
+    //previousConditions : false,
     surgeries: false,
     allergies: false,
     currentMedications: false,
@@ -60,6 +61,8 @@ const ViewMedicalHistory = ({ member, onClose, initialData, onDelete }) => {
         if (response?.data) {
           // Map the API response to match the component's expected structure
           const mappedData = {
+            primaryCarePhysician: response.data.primaryCarePhysician ,
+            medicalHistory: response.data.medicalHistory || [], //16.1.26  2026
             medicalReports: response.data.medicalReports || [],
             treatingDoctors: response.data.treatingDoctors || [],
             followUps: response.data.followUps || [],
@@ -67,7 +70,7 @@ const ViewMedicalHistory = ({ member, onClose, initialData, onDelete }) => {
             allergies: response.data.allergies || [],
             currentMedications: response.data.currentMedications || [],
             surgeries: response.data.surgeries || [],
-            previousMedicalConditions: response.data.previousMedicalConditions || [],
+            previousConditions: response.data.previousConditions || [],
             immunizations: response.data.immunizations || [],
             medicalTestResults: response.data.medicalTestResults || [],
             currentSymptoms: response.data.currentSymptoms || [],
@@ -82,6 +85,8 @@ const ViewMedicalHistory = ({ member, onClose, initialData, onDelete }) => {
           setMedicalHistory(mappedData);
         } else {
           setMedicalHistory({
+            primaryCarePhysician: {},
+            medicalHistory: [],//26
             medicalReports: [],
             treatingDoctors: [],
             followUps: [],
@@ -89,7 +94,7 @@ const ViewMedicalHistory = ({ member, onClose, initialData, onDelete }) => {
             allergies: [],
             currentMedications: [],
             surgeries: [],
-            previousMedicalConditions: [],
+            previousConditions: [],
             immunizations: [],
             medicalTestResults: [],
             currentSymptoms: [],
@@ -148,22 +153,35 @@ const ViewMedicalHistory = ({ member, onClose, initialData, onDelete }) => {
   //     toast.error(error.message || 'Failed to save medical history');
   //   }
   // };
-  const handleSave = async (updatedData) => {
+//   const handleSave = async (updatedData) => {
+//   try {
+//     console.log('Saving updated data:', updatedData);
+
+//     // ✅ DO NOT CREATE A NEW RECORD
+//     // Update only local UI state
+//     setMedicalHistory(updatedData.data);
+
+//     await fetchMedicalHistory(); // refresh
+//     setIsEditMode(false);
+
+//     toast.success('Medical history updated successfully');
+
+//   } catch (error) {
+//     console.error('Error saving medical history:', error);
+//     toast.error(error.message || 'Failed to update medical history');
+//   }
+// };
+//16.1.26
+const handleSave = async (updatedData) => {
   try {
-    console.log('Saving updated data:', updatedData);
-
-    // ✅ DO NOT CREATE A NEW RECORD
-    // Update only local UI state
     setMedicalHistory(updatedData.data);
-
-    await fetchMedicalHistory(); // refresh
-    setIsEditMode(false);
 
     toast.success('Medical history updated successfully');
 
+    onSaveSuccess && onSaveSuccess(); // 🔥 TELL PARENT
+    setIsEditMode(false);
   } catch (error) {
-    console.error('Error saving medical history:', error);
-    toast.error(error.message || 'Failed to update medical history');
+    toast.error('Failed to update medical history');
   }
 };
 
@@ -499,6 +517,23 @@ header.innerHTML = `
   }
 
   /* ===============================
+     Medical History -- 16.1.26
+  =============================== */
+  if (selectedSections.medicalHistory) {
+    addSection("Medical History", `
+      ${(displayData.medicalHistory || [])
+        .map(c => `
+           <div style="background:#ffeaea;padding:10px;border-radius:4px;margin-bottom:8px;">
+            <p><strong>Condition:</strong> ${c.condition}</p>
+            <p><strong>Diagnosed At:</strong> ${formatDate(c.diagnosisDate)}</p>
+            <p><strong>Treatment:</strong> ${c.treatment}</p>
+            <p><strong>Notes:</strong> ${c.notes}</p>
+            <p><strong>Status:</strong> ${c.status}</p>
+          </div>`
+        ).join('')}
+    `);
+  }
+  /* ===============================
      TREATING DOCTORS
   =============================== */
   if (selectedSections.treatingDoctors) {
@@ -533,9 +568,11 @@ header.innerHTML = `
   /* ===============================
      PREVIOUS CONDITIONS
   =============================== */
-  if (selectedSections.previousMedicalConditions) {
-    addSection("Previous Medical Conditions", `
-      ${(displayData.previousMedicalConditions || [])
+  if (selectedSections.previousConditions) {
+   
+    //console.log(previousConditions)
+    addSection("Previous Medical Conditions  ", `
+      ${(displayData.previousConditions || [])
         .map(c => `
           <div style="background:#ffeaea;padding:10px;border-radius:4px;margin-bottom:8px;">
             <p><strong>Condition:</strong> ${c.condition}</p>
@@ -958,6 +995,36 @@ html2pdf()
                 </div>
               </div>
 
+              {/* Medical History  16.1.26   2026*/}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <SectionHeader
+                  title="Medical History"
+                  icon={<FaHeartbeat className="text-red-600" />}
+                  section="medicalHistory"
+                  bgColor="bg-red-50"
+                  textColor="text-red-800"
+                  borderColor="border-red-100"
+                />
+                <div className="p-6">
+                  <div className="space-y-4">
+                    {(displayData.medicalHistory || []).map((condition, index) => (
+                      <div key={index} className="p-4 bg-red-50 rounded-lg border border-red-100">
+                        <div className="grid grid-cols-1 gap-3">
+                          <DetailRow icon={<FaHeartbeat className="text-red-500" />} label="Condition" value={condition.condition} />
+                          <DetailRow icon={<FaCalendar className="text-red-500" />} label="Diagnosed At" value={formatDate(condition.diagnosisDate)} />
+                          <DetailRow icon={<FaMedkit className="text-red-500" />} label="Treatment" value={condition.treatment} />
+                          <DetailRow icon={<FaClipboard className="text-red-500" />} label="Notes" value={condition.notes} />
+                          <DetailRow icon={<FaInfoCircle className="text-red-500" />} label="Status" value={condition.status} />
+                        </div>
+                      </div>
+                    ))}
+                    {(!displayData.medicalHistory || displayData.medicalHistory.length === 0) && (
+                      <p className="text-gray-500 italic">No Medical History recorded</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Treating Doctors */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <SectionHeader
@@ -1105,14 +1172,14 @@ html2pdf()
                 <SectionHeader
                   title="Previous Medical Conditions"
                   icon={<FaHeartbeat className="text-red-600" />}
-                  section="previousMedicalConditions"
+                  section="previousConditions"
                   bgColor="bg-red-50"
                   textColor="text-red-800"
                   borderColor="border-red-100"
                 />
                 <div className="p-6">
                   <div className="space-y-4">
-                    {(displayData.previousMedicalConditions || []).map((condition, index) => (
+                    {(displayData.previousConditions || []).map((condition, index) => (
                       <div key={index} className="p-4 bg-red-50 rounded-lg border border-red-100">
                         <div className="grid grid-cols-1 gap-3">
                           <DetailRow icon={<FaHeartbeat className="text-red-500" />} label="Condition" value={condition.condition} />
@@ -1123,7 +1190,7 @@ html2pdf()
                         </div>
                       </div>
                     ))}
-                    {(!displayData.previousMedicalConditions || displayData.previousMedicalConditions.length === 0) && (
+                    {(!displayData.previousConditions || displayData.previousConditions.length === 0) && (
                       <p className="text-gray-500 italic">No previous conditions recorded</p>
                     )}
                   </div>

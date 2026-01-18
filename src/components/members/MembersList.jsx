@@ -19,8 +19,8 @@ const MembersList = ({
   handleSelectAll,
   setShowSubProfiles,
   loading,
-  onLoadMore,
-  hasMore,
+  // onLoadMore,
+  // hasMore,
   onRefresh
 }) => {
   const observer = useRef();
@@ -43,23 +43,23 @@ const MembersList = ({
     }
   }, []);
 
-  const lastMemberRef = useCallback(node => {
-    if (loading) return;
+  // const lastMemberRef = useCallback(node => {
+  //   if (loading) return;
     
-    if (observer.current) {
-      observer.current.disconnect();
-    }
+  //   if (observer.current) {
+  //     observer.current.disconnect();
+  //   }
     
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        onLoadMore && onLoadMore();
-      }
-    });
+  //   observer.current = new IntersectionObserver(entries => {
+  //     if (entries[0].isIntersecting && hasMore) {
+  //       onLoadMore && onLoadMore();
+  //     }
+  //   });
     
-    if (node) {
-      observer.current.observe(node);
-    }
-  }, [loading, hasMore, onLoadMore]);
+  //   if (node) {
+  //     observer.current.observe(node);
+  //   }
+  // }, [loading, hasMore, onLoadMore]);
 
   // Filter out only students, keep both members and sub-profiles
   const filteredMembers = useMemo(() => {
@@ -147,7 +147,8 @@ const MembersList = ({
       return (
         <tr
           key={memberId}
-          ref={isLastElement ? lastMemberRef : null}
+          ref={null}
+          //ref={isLastElement ? lastMemberRef : null}
           onClick={() => handleMemberClick(member)}
           className={`hover:bg-gray-50 cursor-pointer ${isSelected ? 'bg-blue-50' : ''}`}
         >
@@ -254,7 +255,7 @@ const MembersList = ({
         </tr>
       );
     });
-  }, [filteredMembers, selectedMembers, handleCheckboxChange, handleMembershipCardDownload, handleViewMedicalHistory, handleAddMedicalHistory, handleMemberClick, handleSubscriptionClick, formatMemberName, formatMemberPhone, getMemberId, lastMemberRef, setShowSubProfiles, downloadingId]);
+  }, [filteredMembers, selectedMembers, handleCheckboxChange, handleMembershipCardDownload, handleViewMedicalHistory, handleAddMedicalHistory, handleMemberClick, handleSubscriptionClick, formatMemberName, formatMemberPhone, getMemberId, setShowSubProfiles, downloadingId]);
 
   const handleMemberDeleted = () => {
     // Clear any selected members
@@ -262,7 +263,10 @@ const MembersList = ({
     // Trigger refresh
     onRefresh && onRefresh();
   };
-
+   //16.1.2026
+   const handleMedicalHistoryRefresh = () => {
+  onRefresh && onRefresh(); // refresh members list
+};
   return (
     <div className="w-full h-full flex flex-col">
       <div className="relative flex-1 overflow-x-auto">
@@ -313,7 +317,7 @@ const MembersList = ({
               return (
                 <tr
                   key={memberId}
-                  ref={isLastElement ? lastMemberRef : null}
+                  //ref={isLastElement ? lastMemberRef : null}
                   onClick={() => handleMemberClick(member)}
                   className={`hover:bg-gray-50 cursor-pointer ${isSelected ? 'bg-blue-50' : ''}`}
                 >
@@ -439,7 +443,7 @@ const MembersList = ({
       </div>
 
       {/* Medical History List Modal */}
-      {showViewMedicalHistory && selectedMemberForHistory && (
+      {/* {showViewMedicalHistory && selectedMemberForHistory && (
         <MedicalHistoryList
           member={selectedMemberForHistory}
           onClose={() => {
@@ -447,25 +451,67 @@ const MembersList = ({
             setSelectedMemberForHistory(null);
           }}
         />
-      )}
-
-      {/* Add Medical History Modal */}
-      {showAddMedicalHistory && selectedMemberForHistory && (
-        <AddMedicalHistory
+      )} */}
+      {showViewMedicalHistory && selectedMemberForHistory && (
+        <MedicalHistoryList
+          key={selectedMemberForHistory._id || selectedMemberForHistory.id}
           member={selectedMemberForHistory}
-          onClose={() => {
-            setShowAddMedicalHistory(false);
-            setSelectedMemberForHistory(null);
-          }}
-          onSave={(data) => {
-            // Handle saving medical history data
-            console.log('Saving medical history:', data);
-            setShowAddMedicalHistory(false);
-            setSelectedMemberForHistory(null);
-            onRefresh && onRefresh(); // Refresh the list after saving
-          }}
+          // onClose={() => {
+          //   setShowViewMedicalHistory(false);
+          //   setSelectedMemberForHistory(null);
+          // }}
+           onClose={() => setShowViewMedicalHistory(false)}
+           onRefresh={handleMedicalHistoryRefresh} // 🔥
         />
       )}
+
+
+      {/* Add Medical History Modal */}
+      {/* {showAddMedicalHistory && selectedMemberForHistory && (
+        // <AddMedicalHistory
+        //   member={selectedMemberForHistory}
+        //   onClose={() => {
+        //     setShowAddMedicalHistory(false);
+        //     setSelectedMemberForHistory(null);
+        //   }}
+        //   onSave={(data) => {
+        //     // Handle saving medical history data
+        //     console.log('Saving medical history:', data);
+        //     setShowAddMedicalHistory(false);
+        //     setSelectedMemberForHistory(null);
+        //     onRefresh && onRefresh(); // Refresh the list after saving
+        //   }}
+        // />
+        
+      )} */}
+{showAddMedicalHistory && selectedMemberForHistory && (
+  <AddMedicalHistory
+    member={selectedMemberForHistory}
+
+    /* 🔥 PLUS ICON = CREATE MODE */
+    isEdit={false}
+    initialData={null}
+
+    onClose={() => {
+      setShowAddMedicalHistory(false);
+    }}
+
+    onSave={async () => {
+      // fetch updated member so UI updates without refresh
+      const memberId =
+        selectedMemberForHistory._id || selectedMemberForHistory.id;
+
+      const response = await membersService.getMemberById(memberId);
+
+      if (response?.status === 'success') {
+        setSelectedMemberForHistory(response.data);
+      }
+
+      setShowAddMedicalHistory(false);
+    }}
+  />
+)}
+
 
       {/* View Member Modal */}
       {showViewMember && selectedMemberForHistory && (

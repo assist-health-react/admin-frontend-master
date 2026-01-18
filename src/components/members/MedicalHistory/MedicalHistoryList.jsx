@@ -60,6 +60,14 @@ const MedicalHistoryList = ({ member, onClose }) => {
     fetchMedicalHistories(); // Refresh the list
   };
 
+  //16.1.26
+  const handleHistoryUpdated = () => {
+  setSelectedHistory(null);
+  fetchMedicalHistories();
+  onRefresh && onRefresh(); // 🔥 IMPORTANT
+};
+
+
   if (selectedHistory) {
     return (
       <ViewMedicalHistory
@@ -67,6 +75,7 @@ const MedicalHistoryList = ({ member, onClose }) => {
         onClose={() => setSelectedHistory(null)}
         initialData={selectedHistory}
         onDelete={handleHistoryDeleted}
+        onSaveSuccess={handleHistoryUpdated}//16.1.26
       />
     );
   }
@@ -117,9 +126,9 @@ const MedicalHistoryList = ({ member, onClose }) => {
                             {history.treatingDoctors[0].speciality && ` (${history.treatingDoctors[0].speciality})`}
                           </p>
                         )}
-                        {history.previousMedicalConditions?.length > 0 && history.previousMedicalConditions[0].condition && (
+                        {history.previousConditions?.length > 0 && history.previousConditions[0].condition && (
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium">Condition:</span> {history.previousMedicalConditions[0].condition}
+                            <span className="font-medium">Condition:</span> {history.previousConditions[0].condition}
                           </p>
                         )}
                       </div>

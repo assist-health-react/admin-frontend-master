@@ -1,0 +1,40 @@
+warning: in the working copy of 'src/components/members/MedicalHistory/MedicalHistoryList.jsx', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/components/members/MedicalHistory/MedicalHistoryList.jsx b/src/components/members/MedicalHistory/MedicalHistoryList.jsx[m
+[1mindex 97e093a..b4eb9bc 100644[m
+[1m--- a/src/components/members/MedicalHistory/MedicalHistoryList.jsx[m
+[1m+++ b/src/components/members/MedicalHistory/MedicalHistoryList.jsx[m
+[36m@@ -60,6 +60,14 @@[m [mconst MedicalHistoryList = ({ member, onClose }) => {[m
+     fetchMedicalHistories(); // Refresh the list[m
+   };[m
+ [m
+[32m+[m[32m  //16.1.26[m
+[32m+[m[32m  const handleHistoryUpdated = () => {[m
+[32m+[m[32m  setSelectedHistory(null);[m
+[32m+[m[32m  fetchMedicalHistories();[m
+[32m+[m[32m  onRefresh && onRefresh(); // 🔥 IMPORTANT[m
+[32m+[m[32m};[m
+[32m+[m
+[32m+[m
+   if (selectedHistory) {[m
+     return ([m
+       <ViewMedicalHistory[m
+[36m@@ -67,6 +75,7 @@[m [mconst MedicalHistoryList = ({ member, onClose }) => {[m
+         onClose={() => setSelectedHistory(null)}[m
+         initialData={selectedHistory}[m
+         onDelete={handleHistoryDeleted}[m
+[32m+[m[32m        onSaveSuccess={handleHistoryUpdated}//16.1.26[m
+       />[m
+     );[m
+   }[m
+[36m@@ -117,9 +126,9 @@[m [mconst MedicalHistoryList = ({ member, onClose }) => {[m
+                             {history.treatingDoctors[0].speciality && ` (${history.treatingDoctors[0].speciality})`}[m
+                           </p>[m
+                         )}[m
+[31m-                        {history.previousMedicalConditions?.length > 0 && history.previousMedicalConditions[0].condition && ([m
+[32m+[m[32m                        {history.previousConditions?.length > 0 && history.previousConditions[0].condition && ([m
+                           <p className="text-sm text-gray-600">[m
+[31m-                            <span className="font-medium">Condition:</span> {history.previousMedicalConditions[0].condition}[m
+[32m+[m[32m                            <span className="font-medium">Condition:</span> {history.previousConditions[0].condition}[m
+                           </p>[m
+                         )}[m
+                       </div>[m

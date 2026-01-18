@@ -15,6 +15,7 @@ const AddMedicalHistory = ({ member, onClose, onSave, initialData, isEdit = fals
       name: '',
       contactNumber: ''
     },
+    //2026
     medicalHistory: [{
       condition: '',
       diagnosisDate:new Date().toISOString().split('T')[0],
@@ -116,15 +117,25 @@ const handleTitleChange = (index, title) => {
       console.log('Initializing form data in edit mode:', { isEdit, initialData });
       const mappedData = {
         primaryCarePhysician: initialData.primaryCarePhysician || formData.primaryCarePhysician,
-        medicalHistory: initialData.previousMedicalConditions?.length > 0 
-          ? initialData.previousMedicalConditions.map(({ _id, ...rest }) => ({
-              condition: rest.condition || '',
-              diagnosisDate: formatDateForInput(rest.diagnosedAt) || '',
-              treatment: rest.treatmentReceived || '',
-              status: rest.status || 'active',
-              notes: rest.notes || ''
-            }))
-          : formData.medicalHistory,
+        // medicalHistory: initialData.previousMedicalConditions?.length > 0 
+        //   ? initialData.previousMedicalConditions.map(({ _id, ...rest }) => ({
+        //       condition: rest.condition || '',
+        //       diagnosisDate: formatDateForInput(rest.diagnosedAt) || '',
+        //       treatment: rest.treatmentReceived || '',
+        //       status: rest.status || 'active',
+        //       notes: rest.notes || ''
+        //     }))
+        //   : formData.medicalHistory,
+        medicalHistory: initialData.medicalHistory?.length > 0
+        ? initialData.medicalHistory.map(item => ({
+            condition: item.condition || '',
+            diagnosisDate: item.diagnosisDate?.slice(0, 10) || '',
+            treatment: item.treatment || '',
+            status: item.status || 'active',
+            notes: item.notes || ''
+          }))
+        : formData.medicalHistory,
+
         treatingDoctors: initialData.treatingDoctors?.length > 0 
           ? initialData.treatingDoctors.map(({ _id, ...rest }) => ({
               name: rest.name || '',
@@ -160,8 +171,8 @@ const handleTitleChange = (index, title) => {
               surgeonName: rest.surgeonName || ''
             }))
           : formData.surgeries,
-        previousConditions: initialData.previousMedicalConditions?.length > 0 
-          ? initialData.previousMedicalConditions.map(({ _id, ...rest }) => ({
+        previousConditions: initialData.previousConditions?.length > 0 
+          ? initialData.previousConditions.map(({ _id, ...rest }) => ({
               condition: rest.condition || '',
               diagnosedAt: rest.diagnosedAt ? new Date(rest.diagnosedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
               treatmentReceived: rest.treatmentReceived || '',
@@ -175,8 +186,8 @@ const handleTitleChange = (index, title) => {
               dateReceived: rest.date?.split('T')[0] || ''
             }))
           : formData.immunizationHistory,
-        medicalTestResults: initialData.medicalReports?.length > 0
-          ? initialData.medicalReports.map(({ _id, ...rest }) => ({
+        medicalTestResults: initialData.medicalTestResults?.length > 0
+          ? initialData.medicalTestResults.map(({ _id, ...rest }) => ({
               name: rest.name || '',
               date: new Date().toISOString().split('T')[0],
               results: rest.files?.join(', ') || ''
@@ -577,6 +588,7 @@ const handleSubmit = async (e) => {
 
     if (response) {
       onSave(response);
+     // onSave(response);
       onClose();
     }
 

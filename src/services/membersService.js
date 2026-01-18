@@ -10,8 +10,8 @@ export const membersService = {
       queryParams.append('isStudent', params.isStudent === true);
       queryParams.append('sortBy', params.sortBy || 'createdAt');
       queryParams.append('sortOrder', params.sortOrder || 'asc');
-      queryParams.append('page', params.page || 1);
-      queryParams.append('limit', params.limit || 10);
+      // queryParams.append('page', params.page || 1);
+      // queryParams.append('limit', params.limit || 10);
       
       // Optional filter params - only append if they have values
       if (params.search) queryParams.append('search', params.search);
