@@ -1,6 +1,7 @@
 // src/components/HealthcareDirectory/hospitals/HospitalsList.jsx
 import React, { useState } from "react";
 import { FaEdit, FaTrash, FaUserCircle } from "react-icons/fa";
+import HospitalDetailsModal from "./HospitalDetailsModal";//2026
 
 const HospitalsList = ({
   hospitals = [],
@@ -12,6 +13,7 @@ const HospitalsList = ({
   setCurrentPage = () => {}
 }) => {
   const [localSelected, setLocalSelected] = useState(null);
+ const [selectedHospital, setSelectedHospital] = useState(null);//2026
 
   if (isLoading)
     return (
@@ -28,79 +30,148 @@ const HospitalsList = ({
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
         {hospitals.map((h) => (
+          // <div
+          //   key={h._id}
+          //   className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100"
+          // >
+          //   <div className="p-6 flex flex-col h-full">
+          //     {/* Header */}
+          //     <div className="flex items-start gap-4 mb-4 pb-4 border-b border-gray-100">
+          //       <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
+          //         <FaUserCircle className="w-12 h-12 text-gray-400" />
+          //       </div>
+          //       <div className="flex-1 min-w-0">
+          //         <h3 className="text-lg font-semibold text-gray-800 mb-1">
+          //           {h.hospitalName}
+          //         </h3>
+          //         <p className="text-gray-500 text-sm mb-1">{h.email}</p>
+          //         <p className="text-gray-600 text-sm mb-1">{h.phone}</p>
+          //         <p className="text-gray-600 text-sm capitalize">
+          //           {h.area}, {h.city}
+          //         </p>
+          //       </div>
+          //     </div>
+
+          //     {/* Details */}
+          //     <div className="space-y-3 mb-4 pb-4 border-b border-gray-100 text-sm text-gray-700">
+          //       <div>
+          //         <strong>Department:</strong>{" "}
+          //         {h.department?.length ? h.department.join(", ") : "—"}
+          //       </div>
+          //       <div>
+          //         <strong>Services:</strong> {h.services?.length ? h.services.join(", ") : "—"}
+          //       </div>
+          //       <div>
+          //         <strong>Sub Services:</strong>{" "}
+          //         {h.subServices?.length ? h.subServices.join(", ") : "—"}
+          //       </div>
+          //     </div>
+
+          //     {/* Actions */}
+          //     <div className="flex gap-3 mt-auto pt-4 border-t border-gray-100">
+          //       <button
+          //         onClick={() => onEdit(h)}
+          //         className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
+          //       >
+          //         <FaEdit className="w-4 h-4 mr-2" />
+          //         Edit
+          //       </button>
+
+          //       <button
+          //         onClick={() => onDelete(h._id)}
+          //         className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700"
+          //       >
+          //         <FaTrash className="w-4 h-4 mr-2" />
+          //         Delete
+          //       </button>
+
+          //       <button
+          //         onClick={() => setLocalSelected(h._id === localSelected ? null : h._id)}
+          //         className="ml-auto text-sm text-gray-500 hover:text-gray-700"
+          //       >
+          //         {localSelected === h._id ? "Close" : "View"}
+          //       </button>
+          //     </div>
+
+          //     {/* Optional expanded section */}
+          //     {localSelected === h._id && (
+          //       <div className="mt-4 text-sm text-gray-600">
+          //         <p><strong>Website:</strong> {h.website || "—"}</p>
+          //         <p><strong>GST:</strong> {h.gstNumber || "—"}</p>
+          //         <p className="mt-2"><strong>Address:</strong> {h.address}</p>
+          //       </div>
+          //     )}
+          //   </div>
+          // </div>
+          //19.1.26  2026
           <div
             key={h._id}
-            className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100"
+            className="bg-white rounded-xl shadow-sm hover:shadow-md transition border border-gray-100"
           >
-            <div className="p-6 flex flex-col h-full">
+            <div className="p-5 flex flex-col h-full">
+
               {/* Header */}
-              <div className="flex items-start gap-4 mb-4 pb-4 border-b border-gray-100">
-                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
-                  <FaUserCircle className="w-12 h-12 text-gray-400" />
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
+                  <FaUserCircle className="w-8 h-8 text-blue-400" />
                 </div>
+
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                  <h3 className="text-base font-semibold text-gray-800 truncate">
                     {h.hospitalName}
                   </h3>
-                  <p className="text-gray-500 text-sm mb-1">{h.email}</p>
-                  <p className="text-gray-600 text-sm mb-1">{h.phone}</p>
-                  <p className="text-gray-600 text-sm capitalize">
+                  <p className="text-sm text-gray-500 truncate">
                     {h.area}, {h.city}
                   </p>
                 </div>
               </div>
 
-              {/* Details */}
-              <div className="space-y-3 mb-4 pb-4 border-b border-gray-100 text-sm text-gray-700">
-                <div>
-                  <strong>Department:</strong>{" "}
-                  {h.department?.length ? h.department.join(", ") : "—"}
+              {/* Key Info */}
+              <div className="space-y-2 text-sm text-gray-600 mb-4">
+                <div><strong>Phone:</strong> {h.phone}</div>
+                <div className="truncate"><strong>Email:</strong> {h.email}</div>
+
+                <div className="truncate">
+                  <strong>Departments:</strong>{" "}
+                  {h.department?.slice(0, 2).join(", ")}
+                  {h.department?.length > 2 && " +more"}
                 </div>
-                <div>
-                  <strong>Services:</strong> {h.services?.length ? h.services.join(", ") : "—"}
-                </div>
-                <div>
-                  <strong>Sub Services:</strong>{" "}
-                  {h.subServices?.length ? h.subServices.join(", ") : "—"}
+
+                <div className="truncate">
+                  <strong>Services:</strong>{" "}
+                  {h.services?.slice(0, 2).join(", ")}
+                  {h.services?.length > 2 && " +more"}
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-3 mt-auto pt-4 border-t border-gray-100">
-                <button
+              {/* Footer Actions */}
+              <div className="mt-auto  gap-3 flex items-center justify-between pt-4 border-t">
+
+               <button
                   onClick={() => onEdit(h)}
                   className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
                 >
-                  <FaEdit className="w-4 h-4 mr-2" />
                   Edit
                 </button>
 
-                <button
+                        <button
                   onClick={() => onDelete(h._id)}
                   className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700"
                 >
-                  <FaTrash className="w-4 h-4 mr-2" />
                   Delete
                 </button>
 
                 <button
-                  onClick={() => setLocalSelected(h._id === localSelected ? null : h._id)}
-                  className="ml-auto text-sm text-gray-500 hover:text-gray-700"
+                  onClick={() => setSelectedHospital(h)}
+                  className="ml-auto px-3 py-1.5 text-sm bg-gray-100 rounded-lg hover:bg-gray-200"
                 >
-                  {localSelected === h._id ? "Close" : "View"}
+                  View Details
                 </button>
-              </div>
 
-              {/* Optional expanded section */}
-              {localSelected === h._id && (
-                <div className="mt-4 text-sm text-gray-600">
-                  <p><strong>Website:</strong> {h.website || "—"}</p>
-                  <p><strong>GST:</strong> {h.gstNumber || "—"}</p>
-                  <p className="mt-2"><strong>Address:</strong> {h.address}</p>
-                </div>
-              )}
+              </div>
             </div>
           </div>
+
         ))}
       </div>
 
@@ -124,6 +195,13 @@ const HospitalsList = ({
           Next
         </button>
       </div>
+
+
+      <HospitalDetailsModal
+      isOpen={!!selectedHospital}
+      hospital={selectedHospital}
+      onClose={() => setSelectedHospital(null)}
+      />
     </>
   );
 };
