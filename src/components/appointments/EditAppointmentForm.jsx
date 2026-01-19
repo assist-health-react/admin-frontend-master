@@ -518,7 +518,7 @@ const EditAppointmentForm = ({ onClose, onSuccess, onSaveSuccess, appointment })
   try {
     const token = localStorage.getItem('token');
 
-    const res = await fetch(`/api/v1/doctors/specialties`, { //${BASE_URL}
+    const res = await fetch(`${BASE_URL}/api/v1/doctors/specialties`, { //${BASE_URL}
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -543,6 +543,25 @@ const EditAppointmentForm = ({ onClose, onSuccess, onSaveSuccess, appointment })
     console.error('Failed to load specialties', err);
   }
 };
+// 🔥 FIX: Rebind specialization after options load
+useEffect(() => {
+  if (
+    appointment?.specialization &&
+    specializations.length > 0
+  ) {
+    const matched = specializations.find(
+      s => s.value === appointment.specialization._id
+    );
+
+    if (matched) {
+      setFormData(prev => ({
+        ...prev,
+        specialization: matched
+      }));
+    }
+  }
+}, [specializations]);
+
 // ✅ FIX: Load specialization list when Edit form opens
 useEffect(() => {
   if (appointment?.doctorId?.specializations?.length) {
