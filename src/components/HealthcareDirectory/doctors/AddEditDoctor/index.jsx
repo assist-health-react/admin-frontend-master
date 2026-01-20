@@ -589,18 +589,18 @@ const handleAddress2Pincode = (e) => {
       let res;
 
       if (isEditing)
-        res = await doctorsService.updateDoctor(initialData._id, payload);
-      else res = await doctorsService.createDoctor(payload);
+        res = await doctorsService.updateAHDoctor(initialData._id, payload);
+      else res = await doctorsService.createAHDoctor(payload);
 
       if (res.status === "success") {
         showSnackbar("Saved!", "success");
         onSuccess?.();
         onClose();
       } else {
-        showSnackbar("Failed", "error");
+        showSnackbar(res.message, "error");
       }
     } catch (e) {
-      showSnackbar("Failed to save", "error");
+      showSnackbar(res.message, "error");
     } finally {
       setSaving(false);
     }

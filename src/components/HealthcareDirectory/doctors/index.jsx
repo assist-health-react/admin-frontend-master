@@ -31,7 +31,7 @@ export default function NewDoctors() {
   const fetchDoctors = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await doctorsService.getDoctors();
+      const res = await doctorsService.getAHDoctors();
       if (res.status === "success") {
         setDoctors(res.data);
         setFilteredDoctors(res.data);
