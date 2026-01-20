@@ -388,7 +388,7 @@ if (filters.subSpecialtyName) {
   const handleDelete = async () => {
     try {
       setDeleteLoading(true);
-      const res = await doctorsService.deleteDoctor(deleteId);
+      const res = await doctorsService.deleteAHDoctor(deleteId);
       if (res.status === "success") {
         showSnackbar("Doctor deleted", "success");
         fetchDoctors();
