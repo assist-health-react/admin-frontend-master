@@ -59,9 +59,9 @@ const AddMedicalHistory = ({ member, onClose, onSave, initialData, isEdit = fals
       condition: '',
       relationship: 'father'
     }],
-    immunizationHistory: [{
-      vaccination: '',
-      dateReceived: new Date().toISOString().split('T')[0]
+   immunizations: [{
+      vaccine: '',
+      date:  new Date().toISOString().split('T')[0]
     }],
     medicalTestResults: [{
       name: '',
@@ -180,12 +180,12 @@ const handleTitleChange = (index, title) => {
               status: rest.status || 'active'
             }))
           : formData.previousConditions,
-        immunizationHistory: initialData.immunizations?.length > 0 
+        immunizations: initialData.immunizations?.length > 0 
           ? initialData.immunizations.map(({ _id, ...rest }) => ({
-              vaccination: rest.vaccine || '',
-              dateReceived: rest.date?.split('T')[0] || ''
+              vaccine: rest.vaccine || '',
+              date: rest.date?.split('T')[0] || ''
             }))
-          : formData.immunizationHistory,
+          : formData.immunizations,
         medicalTestResults: initialData.medicalTestResults?.length > 0
           ? initialData.medicalTestResults.map(({ _id, ...rest }) => ({
               name: rest.name || '',
@@ -288,8 +288,8 @@ const handleTitleChange = (index, title) => {
         return { name: '', dosage: '', frequency: '' };
       case 'familyHistory':
         return { condition: '', relationship: 'father' };
-      case 'immunizationHistory':
-        return { vaccination: '', dateReceived: today };
+      case 'immunizations':
+        return { vaccine: '', date: today };
       case 'medicalTestResults':
         return { name: '', date: today, results: '' };
       case 'currentSymptoms':
@@ -495,7 +495,7 @@ const removeUploadField = (index) => {
   //           status: condition.status
   //         };
   //       }),
-  //       immunizations: formData.immunizationHistory.map(immunization => ({
+  //       immunizations: formData.immunizations.map(immunization => ({
   //         vaccine: immunization.vaccination,
   //         date: immunization.dateReceived ? new Date(immunization.dateReceived).toISOString() : null
   //       })),
