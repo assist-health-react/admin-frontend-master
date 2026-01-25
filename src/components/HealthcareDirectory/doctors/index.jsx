@@ -15,7 +15,7 @@ export default function NewDoctors() {
   const [loading, setLoading] = useState(true);
 
   const [page, setPage] = useState(1);
-  const limit = 9;
+  const limit = 8;
 
   const [showModal, setShowModal] = useState(false);
   const [editDoctor, setEditDoctor] = useState(null);

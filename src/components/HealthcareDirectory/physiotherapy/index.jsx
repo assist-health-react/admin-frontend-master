@@ -7,7 +7,7 @@ import AssignedMembersModal from './AssignedMembersModal'
 import PhysiotherapyFilter from './filters/PhysiotherapyFilter'
 import { healthcareService } from "../../../services/healthcareService";
 const ShowPhysiotherapy = () => {
-  const itemsPerPage = 9 // Show 9 doctors per page (3x3 grid)
+  const itemsPerPage = 8 // Show 9 doctors per page (3x3 grid)
   const [items, setItems] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [doctors, setDoctors] = useState([])

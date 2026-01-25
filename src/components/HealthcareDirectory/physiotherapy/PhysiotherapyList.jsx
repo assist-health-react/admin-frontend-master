@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FaTrash, FaEdit, FaUserCircle } from "react-icons/fa";
 import { healthcareService } from "../../../services/healthcareService";
 import AddEditDoctor from './AddEditDiagnostics'
+import PhysiotherapyDetailsModal from './PhysiotherapyDetailsModal'
 
 export default function PhysiotherapyList({
   items,
@@ -14,6 +15,7 @@ export default function PhysiotherapyList({
   const [isEditing, setIsEditing] = useState(false);
   const [selected, setSelected] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [selectedPhysio, setSelectedPhysio] = useState(null);
 
   const paginatedItems = items.slice(
     (currentPage - 1) * pagination.limit,
@@ -43,93 +45,102 @@ export default function PhysiotherapyList({
             <div
               key={item._id}
               className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100"
-            >
-              <div className="p-6 flex flex-col h-full">
-                {/* Header */}
-                <div className="flex items-start gap-4 mb-4 pb-4 border-b border-gray-100">
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-20 h-20 rounded-full object-cover shadow-sm"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
-                      <FaUserCircle className="w-12 h-12 text-gray-400" />
+            > 
+            <div className="p-5 flex flex-col h-full">
+
+                  {/* Header */}
+                  <div className="flex gap-4 mb-3">
+                    <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
+                      <FaUserCircle className="w-8 h-8 text-blue-400" />
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                      {item.name}
-                    </h3>
-                    <p className="text-gray-500 text-sm mb-1">{item.email}</p>
-                    <p className="text-gray-600 text-sm mb-1">{item.phone}</p>
-                    {item.servicetype && (
-                      <p className="text-xs font-medium text-blue-600 mt-1">
-                        Service Type: {item.servicetype}
+
+                    <div className="min-w-0">
+                      <h3 className="text-base font-semibold truncate">{item.name}</h3>
+                      <p className="text-sm text-gray-500">{item.phone}</p>
+                      <p className="text-sm text-gray-500">
+                        {item.address?.city}, {item.address?.area}
                       </p>
-                    )}
+                    </div>
+                  </div>
+
+                  {/* Key Info */}
+                  <div className="text-sm text-gray-600 mb-4">
+                    <p><strong>Type:</strong> {item.servicetype}</p>
+                    <p className="truncate">
+                      <strong>Services:</strong>{" "}
+                      {(item.services || []).slice(0, 2).join(", ")}
+                      {item.services?.length > 2 && " +more"}
+                    </p>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="mt-auto flex gap-2 pt-3 border-t">
+                    <button
+                      onClick={() => {
+                        setSelected(item);
+                        setIsEditing(true);
+                      }}
+                      className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setSelected(item);
+                        setShowDeleteConfirm(true);
+                      }}
+                      className="px-3 py-1.5 text-sm bg-red-600 text-white rounded"
+                    >
+                      Delete
+                    </button>
+
+                    <button
+                      onClick={() => setSelectedPhysio(item)}
+                      className="ml-auto px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                    >
+                      View Details
+                    </button>
                   </div>
                 </div>
 
-                {/* Services */}
-                <div className="mb-4">
-                  <strong className="text-sm">Services:</strong>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {(item.services || []).map((s, index) => (
-                      <span
-                        key={index}
-                        className="bg-blue-50 text-blue-700 px-2.5 py-1 text-xs rounded-md"
-                      >
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Address */}
-                <div className="text-sm text-gray-700 mb-4">
-                  <p>
-                    <strong>Address:</strong>{" "}
-                    {item.address?.street}, {item.address?.area},{" "}
-                    {item.address?.city} - {item.address?.pincode}
-                  </p>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-3 mt-auto pt-4 border-t border-gray-100">
-                  <button
-                    onClick={() => {
-                      setSelected(item);
-                      setIsEditing(true);
-                    }}
-                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                  >
-                    <FaEdit className="w-4 h-4 mr-2" />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelected(item);
-                      setShowDeleteConfirm(true);
-                    }}
-                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-                  >
-                    <FaTrash className="w-4 h-4 mr-2" />
-                    Delete
-                  </button>
-                </div>
-              </div>
+              
             </div>
           ))}
         </div>
 
         {/* Pagination */}
-        {!isLoading && items.length > 0 && (
+        {/* {!isLoading && items.length > 0 && (
           <div className="mt-6 flex items-center justify-center text-sm text-gray-500">
             Page {currentPage} of {pagination.pages}
           </div>
-        )}
+        )} */}
+         {pagination.pages > 1 && (
+            <div className="mt-6 flex justify-center items-center gap-4 text-sm text-gray-600">
+              <button
+                onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                disabled={currentPage <= 1}
+                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              >
+                Prev
+              </button>
+
+              <span>
+                Page {currentPage} of {pagination.pages}
+              </span>
+
+              <button
+                onClick={() =>
+                  currentPage < pagination.pages &&
+                  setCurrentPage(currentPage + 1)
+                }
+                disabled={currentPage >= pagination.pages}
+                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
       </div>
 
       {/* Edit Modal */}
@@ -179,6 +190,12 @@ export default function PhysiotherapyList({
           </div>
         </div>
       )}
+      <PhysiotherapyDetailsModal
+          isOpen={!!selectedPhysio}
+          physio={selectedPhysio}
+          onClose={() => setSelectedPhysio(null)}
+        />
+
     </>
   );
 }
