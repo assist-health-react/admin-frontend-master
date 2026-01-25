@@ -60,7 +60,6 @@ function App() {
     }
     return 'Admin';
   });
-  //12.11.25
   const [openMenu, setOpenMenu] = useState(""); // submenu toggle
 
 

@@ -39,7 +39,7 @@ const NotificationDetail = ({ notifications, onClose, onMarkAllRead, onClearAll 
           <div className="space-y-4">
             {notifications.map((notification) => (
               <div
-                key={notification.id}
+                key={notification._id}
                 className={`p-4 rounded-lg border ${
                   notification.isRead ? 'bg-white' : 'bg-blue-50'
                 }`}
